@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-03-28T14:15:40+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Test Post</title><link href="/2025/03/28/test-post.html" rel="alternate" type="text/html" title="Test Post" /><published>2025-03-28T00:00:00+00:00</published><updated>2025-03-28T00:00:00+00:00</updated><id>/2025/03/28/test-post</id><content type="html" xml:base="/2025/03/28/test-post.html"><![CDATA[<p>Hi Hi !</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"I go to school by bus</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>]]></content><author><name></name></author><category term="c++" /><summary type="html"><![CDATA[Hi Hi !]]></summary></entry></feed>
