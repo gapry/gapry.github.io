@@ -1,16 +1,18 @@
 ---
 layout: post
-title: "Test Post"
+title: "What is closure"
 date: 2025-03-28 
 tag: c++
 ---
 
-Hi Hi !
-
 {% highlight c++ %}
 #include <iostream>
+
 int main(void) {
-  std::cout << "I go to school by bus\n";
+  auto add = [](int a, int b) {
+    return a + b;
+  };
+  std::cout << add(1, 2) << "\n";
   return 0;
 }
 {% endhighlight %}
