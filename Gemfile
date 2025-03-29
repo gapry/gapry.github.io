@@ -17,4 +17,3 @@ gem "minimal-mistakes-jekyll"
 gem "kramdown"
 gem "rouge"
 gem "jekyll-sass-converter"
-

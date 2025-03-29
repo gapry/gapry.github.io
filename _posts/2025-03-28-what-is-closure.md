@@ -5,7 +5,13 @@ date: 2025-03-28
 tag: c++
 ---
 
+<script type="text/javascript" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 ## draft v1
+
+The formula: $$ \mathtt{(\lambda\ (a\ b)\ (+\ a\ b))} $$
 
 ```scheme
 (define add (lambda (a b) (+ a b)))
