@@ -1,11 +1,19 @@
 ---
-layout: post
+layout: default
 title: "What is closure"
 date: 2025-03-28 
 tag: c++
 ---
 
-{% highlight c++ %}
+## draft v1
+
+```scheme
+(define add (lambda (a b) (+ a b)))
+(display (add 1 2))
+(newline)
+```
+
+```c++
 #include <iostream>
 
 int main(void) {
@@ -15,5 +23,4 @@ int main(void) {
   std::cout << add(1, 2) << "\n";
   return 0;
 }
-{% endhighlight %}
-
+```
