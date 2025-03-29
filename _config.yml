@@ -34,10 +34,6 @@ kramdown:
     block:
       line_numbers: true
       start_line: 1
-  math_engine: mathjax
-
-mathjax:
-  src: https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML
 
 exclude:
   - .sass-cache/
