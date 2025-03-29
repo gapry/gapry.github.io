@@ -13,3 +13,8 @@ vendor
 # IDE
 .idea/
 .code/
+
+# C++
+*.out
+*.obj
+*.o
