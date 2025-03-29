@@ -1,0 +1,1 @@
+bpc = Blog Post Code

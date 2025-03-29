@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+    "tasks": [
+    {
+      "label": "Execute",
+      "type": "shell",
+      "command": "sh run.sh",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+    ]
+}
