@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "local install",
+      "type": "shell",
+      "command": "sh scripts/install.sh",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+    },
+    {
+      "label": "local test",
+      "type": "shell",
+      "command": "sh scripts/test.sh",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+    },
+  ]
+}

@@ -10,7 +10,7 @@ vendor
 .vs/
 
 # Editor
-.vscode/
+.vscode/*
 !.vscode/tasks.json
 
 # C++
