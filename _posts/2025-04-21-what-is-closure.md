@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "What is closure"
-date: 2025-03-28 
+date: 2025-04-21 
 tag: c++
 ---
 
