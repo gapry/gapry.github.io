@@ -1,7 +1,5 @@
 ---
-layout: default
-title: About
+layout: archive
+title: About Me
 permalink: /about/
 ---
-
-Hi
