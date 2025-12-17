@@ -1,19 +1,8 @@
-# Jekyll
-_site/
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
-
-# IDE
-.idea/
-.vs/
-
-# Editor
 .vscode/*
 !.vscode/tasks.json
 
-# C++
-*.out
-*.obj
-*.o
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata/
+vendor/
