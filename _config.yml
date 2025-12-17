@@ -14,6 +14,12 @@ github_username:  ""
 
 theme: minimal-mistakes-jekyll
 
+analytics:
+  provider: "google-gtag"
+  google:
+    tracking_id: "G-4DG3HSBT1T"
+    anonymize_ip: false
+
 plugins:
   - jekyll-feed
 
