@@ -1,1 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-12-17T18:12:44+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle></feed>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-12-17T18:25:32+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Study Notes</title><link href="/2025/12/17/notes.html" rel="alternate" type="text/html" title="Study Notes" /><published>2025-12-17T00:00:00+00:00</published><updated>2025-12-17T00:00:00+00:00</updated><id>/2025/12/17/notes</id><content type="html" xml:base="/2025/12/17/notes.html"><![CDATA[<h2 id="draft-v4">draft v4</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="nb">rm</span> <span class="k">*</span>.o <span class="p">;</span> g++ <span class="nt">-O2</span> <span class="nt">-c</span> main.cpp <span class="nt">-o</span> main.o<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o
+
+main.o:	file format elf64-x86-64
+
+Disassembly of section .text.startup:
+
+0000000000000000 &lt;main&gt;:
+       0: f3 0f 1e fa                  	endbr64
+       4: 31 c0                        	xorl	%eax, %eax
+       6: c3                           	retq
+</pre></td></tr></tbody></table></code></pre></div></div>]]></content><author><name></name></author><category term="compiler" /><summary type="html"><![CDATA[draft v4]]></summary></entry></feed>
