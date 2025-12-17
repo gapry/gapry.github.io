@@ -18,7 +18,7 @@ analytics:
   provider: "google-gtag"
   google:
     tracking_id: "G-4DG3HSBT1T"
-    anonymize_ip: false
+    anonymize_ip: true
 
 plugins:
   - jekyll-feed
