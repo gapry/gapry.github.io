@@ -1,89 +1,147 @@
 ---
 layout: default
-title: "The Day 01 Advent of Compiler Optimisations Study Notes"
+title: "Study Notes: Why xor eax, eax? "
 date: 2025-12-31
 tag: compiler
 ---
 
-## The Day 01 Advent of Compiler Optimisations Study Notes
+## Study Notes: Why xor eax, eax? 
 
-#### Why `xor`, not `mov` ?
+These notes are based on the post [**Why xor eax, eax?**](https://xania.org/202512/01-xor-eax-eax), which is Day 1 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
+
+#### Development Environment
 
 {% highlight bash %}
-$ nvim test.c
+$ lsb_release -d
+Description:	Ubuntu 24.04.3 LTS
+
+$ gcc -v
+gcc version 13.3.0
+
+$ clang -v
+Ubuntu clang version 18.1.8
+
+$ llvm-objdump -v
+Ubuntu LLVM version 18.1.8
+{% endhighlight %}
+
+#### The different between `-O0`, `-O1`, and `-O2`
+
+Basically, we know the compiler has the following stages. If we use the same code but choose different 
+optimization levels, the final assembly code will be different.
+
+{% highlight bash %}
+                        [ FRONTEND ]         [ MIDDLE-END ]          [ BACKEND ]
+                        .----------.         .------------.         .------------.
+                        |  Lexer   |         |            |         |    Code    |
+Source Code (*.c) --->  |    &     |  --->   |  Optimizer |  --->   |  Generator | ---> [ Assembly (*.s) ]
+                        |  Parser  |         |            |         | (e.g. x86) |
+                        '----------'         '------------'         '------------'       
+{% endhighlight %}
+
+For now, we use `main.c` as input (shown below), apply different optimization level, 
+and use `llvm-objdump` to analyze the corresponding assembly code.
+
+{% highlight bash %}
+$ nvim main.c
 {% endhighlight %}
 
 ```c
-int test() {
+int main() {
   return 0;
 }
 ```
 
+###### Use `-O0` as optimization level
+
 {% highlight bash %}
-$ rm -f *.o; gcc -O0 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
+$ rm -f *.o; gcc -O0 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 {% endhighlight %}
 
 {% highlight bash %}
-test.o:	file format elf64-x86-64
+main.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
-0000000000000000 <test>:
-       0: f3 0f 1e fa                  	endbr64
-       4: 55                           	pushq	%rbp
-       5: 48 89 e5                     	movq	%rsp, %rbp
-       8: b8 00 00 00 00               	movl	$0x0, %eax
-       d: 5d                           	popq	%rbp
-       e: c3                           	retq
+0000000000000000 <main>:
+       0: f3 0f 1e fa                   endbr64
+       4: 55                            pushq %rbp
+       5: 48 89 e5                      movq  %rsp, %rbp
+       8: b8 00 00 00 00                movl  $0x0, %eax
+       d: 5d                            popq  %rbp
+       e: c3                            retq
 {% endhighlight %}
 
+{% highlight bash %}
+$ size main.o
+{% endhighlight %}
+
+{% highlight bash %}
+text	   data	    bss	    dec	    hex	filename
+ 103	      0	      0	    103	     67	main.o
+{% endhighlight %}
+
+As `-O0`, the compiler generates a stack frame, leading to unnecessary instruction overhead. 
+
+###### Use `-O1` as optimization level
 {% highlight bash %}
 $ rm -f *.o; gcc -O1 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
 {% endhighlight %}
 
 {% highlight bash %}
-test.o:	file format elf64-x86-64
+test.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 <test>:
-       0: f3 0f 1e fa                  	endbr64
-       4: b8 00 00 00 00               	movl	$0x0, %eax
-       9: c3                           	retq
+       0: f3 0f 1e fa                   endbr64
+       4: b8 00 00 00 00                movl  $0x0, %eax
+       9: c3                            retq
 {% endhighlight %}
 
+{% highlight bash %}
+$ size main.o
+{% endhighlight %}
+
+{% highlight bash %}
+text	   data	    bss	    dec	    hex	filename
+  90	      0	      0	     90	     5a	main.o
+{% endhighlight %}
+
+It reduces the output from six instructions to three by removing the stack frame setup. 
+
+###### Use `-O2` as optimzing level
 {% highlight bash %}
 $ rm -f *.o; gcc -O2 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
 {% endhighlight %}
 
 {% highlight bash %}
-test.o:	file format elf64-x86-64
+test.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 <test>:
-       0: f3 0f 1e fa                  	endbr64
-       4: 31 c0                        	xorl	%eax, %eax
-       6: c3 
+       0: f3 0f 1e fa                   endbr64
+       4: 31 c0                         xorl  %eax, %eax
+       6: c3                            retq
 {% endhighlight %}
 
 {% highlight bash %}
-$ rm -f *.o; clang -O0 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
+$ size main.o
 {% endhighlight %}
 
 {% highlight bash %}
-test.o:	file format elf64-x86-64
-
-Disassembly of section .text:
-
-0000000000000000 <test>:
-       0: 55                           	pushq	%rbp
-       1: 48 89 e5                     	movq	%rsp, %rbp
-       4: 31 c0                        	xorl	%eax, %eax
-       6: 5d                           	popq	%rbp
-       7: c3                           	retq
+text	   data	    bss	    dec	    hex	filename
+  87	      0	      0	     87	     57	main.o
 {% endhighlight %}
 
+As you can see, `-02` and `-O1` are both produce three instructions. 
+The only differences is that `-O2` changes from `movl` to `xorl`. 
+The reason is the instructon size. `xorl %eax, %eax` only use two bytes,
+making it smaller than the five bytes `movl  $0x0, %eax`.
+Hence, you can see the total `.text` size changes from 90 bytes to 87 bytes.
+
+#### How about we change `gcc` to `clang`?
 {% highlight bash %}
 $ rm -f *.o; clang -O1 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
 {% endhighlight %}
@@ -91,34 +149,22 @@ $ rm -f *.o; clang -O1 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
 {% highlight bash %}
 rm -f *.o; clang -O1 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
 
-test.o:	file format elf64-x86-64
+test.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 <test>:
-       0: 31 c0                        	xorl	%eax, %eax
-       2: c3                           	retq
+       0: 31 c0                         xorl  %eax, %eax
+       2: c3                            retq
 {% endhighlight %}
 
-{% highlight bash %}
-$ rm -f *.o; clang -O2 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
-{% endhighlight %}
+You will find that the Clang's `-O1` output already use `xorl`, making it similar to GCC's `-O2`.
+Additionally, it consists of only two instructions because Clang does not generate the `endbr64` instruction.
 
-{% highlight bash %}
-test.o:	file format elf64-x86-64
-
-Disassembly of section .text:
-
-0000000000000000 <test>:
-       0: 31 c0                        	xorl	%eax, %eax
-       2: c3                           	retq
-{% endhighlight %}
-
+#### Why `eax`, not `rax` ?
 {% highlight bash %}
 $ nvim test2.c
 {% endhighlight %}
-
-#### Why `eax`, not `rax` ?
 
 ```c
 long get_zero_long() {
@@ -131,17 +177,16 @@ $ rm -f *.o; clang -O2 -c test2.c; llvm-objdump -d --x86-asm-syntax=att test2.o
 {% endhighlight %}
 
 {% highlight bash %}
-test2.o:	file format elf64-x86-64
+test2.o:  file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 <get_zero_long>:
-       0: 31 c0                        	xorl	%eax, %eax
-       2: c3                           	retq
+       0: 31 c0                         xorl  %eax, %eax
+       2: c3                            retq
 {% endhighlight %}
 
 #### Functon Arguments
-
 {% highlight bash %}
 $ nvim test3.c
 {% endhighlight %}
@@ -164,16 +209,16 @@ $ rm -f *.o; clang -O2 -c test3.c; llvm-objdump -d --x86-asm-syntax=att test3.o
 {% endhighlight %}
 
 {% highlight bash %}
-test3.o:	file format elf64-x86-64
+test3.o:  file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 <test>:
-       0: 31 ff                        	xorl	%edi, %edi
-       2: 31 f6                        	xorl	%esi, %esi
-       4: 31 d2                        	xorl	%edx, %edx
-       6: 31 c9                        	xorl	%ecx, %ecx
-       8: 45 31 c0                     	xorl	%r8d, %r8d
-       b: 45 31 c9                     	xorl	%r9d, %r9d
-       e: e9 00 00 00 00               	jmp	0x13 <test+0x13>
+       0: 31 ff                         xorl  %edi, %edi
+       2: 31 f6                         xorl  %esi, %esi
+       4: 31 d2                         xorl  %edx, %edx
+       6: 31 c9                         xorl  %ecx, %ecx
+       8: 45 31 c0                      xorl  %r8d, %r8d
+       b: 45 31 c9                      xorl  %r9d, %r9d
+       e: e9 00 00 00 00                jmp 0x13 <test+0x13>
 {% endhighlight %}
