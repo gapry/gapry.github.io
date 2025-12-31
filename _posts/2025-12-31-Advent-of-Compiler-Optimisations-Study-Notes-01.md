@@ -85,15 +85,15 @@ As `-O0`, the compiler generates a stack frame, leading to unnecessary instructi
 
 ###### Use `-O1` as optimization level
 {% highlight bash %}
-$ rm -f *.o; gcc -O1 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
+$ rm -f *.o; gcc -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 {% endhighlight %}
 
 {% highlight bash %}
-test.o: file format elf64-x86-64
+main.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
-0000000000000000 <test>:
+0000000000000000 <main>:
        0: f3 0f 1e fa                   endbr64
        4: b8 00 00 00 00                movl  $0x0, %eax
        9: c3                            retq
@@ -112,15 +112,15 @@ It reduces the output from six instructions to three by removing the stack frame
 
 ###### Use `-O2` as optimzing level
 {% highlight bash %}
-$ rm -f *.o; gcc -O2 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
+$ rm -f *.o; gcc -O2 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 {% endhighlight %}
 
 {% highlight bash %}
-test.o: file format elf64-x86-64
+main.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
-0000000000000000 <test>:
+0000000000000000 <main>:
        0: f3 0f 1e fa                   endbr64
        4: 31 c0                         xorl  %eax, %eax
        6: c3                            retq
@@ -143,17 +143,17 @@ Hence, you can see the total `.text` size changes from 90 bytes to 87 bytes.
 
 #### How about we change `gcc` to `clang`?
 {% highlight bash %}
-$ rm -f *.o; clang -O1 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
+$ rm -f *.o; clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 {% endhighlight %}
 
 {% highlight bash %}
-rm -f *.o; clang -O1 -c test.c; llvm-objdump -d --x86-asm-syntax=att test.o
+rm -f *.o; clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 
-test.o: file format elf64-x86-64
+main.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
-0000000000000000 <test>:
+0000000000000000 <main>:
        0: 31 c0                         xorl  %eax, %eax
        2: c3                            retq
 {% endhighlight %}
