@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Study Notes: Why xor eax, eax? "
-date: 2025-12-31
+date: 2026-01-01
 tag: compiler
 ---
 
@@ -139,7 +139,7 @@ As you can see, `-02` and `-O1` are both produce three instructions.
 The only differences is that `-O2` changes from `movl` to `xorl`. 
 The reason is the instructon size. `xorl %eax, %eax` only use two bytes,
 making it smaller than the five bytes `movl  $0x0, %eax`.
-Hence, you can see the total `.text` size changes from 90 bytes to 87 bytes.
+Hence, you can see the total `.text` size reduces from 90 bytes to 87 bytes.
 
 #### How about we change `gcc` to `clang`?
 {% highlight bash %}
@@ -162,6 +162,7 @@ You will find that the Clang's `-O1` output already use `xorl`, making it simila
 Additionally, it consists of only two instructions because Clang does not generate the `endbr64` instruction.
 
 #### Why `eax`, not `rax` ?
+
 {% highlight bash %}
 $ nvim test2.c
 {% endhighlight %}
@@ -185,6 +186,11 @@ Disassembly of section .text:
        0: 31 c0                         xorl  %eax, %eax
        2: c3                            retq
 {% endhighlight %}
+
+As we know, the x86-64 calling converstion requires the return value to be stored in the 
+64-bit `rax` register. However, we see that the compiler use the 32-bit `eax` register for the `xorl` instruction. 
+The reason is that in x86-64, any operation that writes to a 32-bit register automatically zero-extends the result
+into the upper 32 bits of the corresponding 64-bit register. 
 
 #### Functon Arguments
 {% highlight bash %}
