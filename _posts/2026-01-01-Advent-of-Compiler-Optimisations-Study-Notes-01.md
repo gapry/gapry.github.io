@@ -23,6 +23,9 @@ Ubuntu clang version 18.1.8
 
 $ llvm-objdump -v
 Ubuntu LLVM version 18.1.8
+
+$ lldb -v
+lldb version 18.1.8
 {% endhighlight %}
 
 #### The different between `-O0`, `-O1`, and `-O2`
@@ -191,6 +194,62 @@ As we know, the x86-64 calling converstion requires the return value to be store
 64-bit `rax` register. However, we see that the compiler use the 32-bit `eax` register for the `xorl` instruction. 
 The reason is that in x86-64, any operation that writes to a 32-bit register automatically zero-extends the result
 into the upper 32 bits of the corresponding 64-bit register. 
+
+Let's see an example for verifying Zero-Extension with LLDB
+
+{% highlight bash %}
+$ nvim main.c
+{% endhighlight %}
+
+```c
+int main() {
+  return 0;
+}
+```
+
+{% highlight bash %}
+$ rm -f *.out; clang -g -O2 -o app.out main.c; lldb app.out
+{% endhighlight %}
+
+{% highlight bash %}
+(lldb) target create "app.out"
+Current executable set to '/home/gapry/Workspaces/test/app.out' (x86_64).
+(lldb) breakpoint set -n main
+Breakpoint 1: where = app.out`main at main.c:2:3, address = 0x0000000000001130
+(lldb) r
+Process 409020 launched: '/home/gapry/Workspaces/test/app.out' (x86_64)
+Process 409020 stopped
+* thread #1, name = 'app.out', stop reason = breakpoint 1.1
+    frame #0: 0x0000555555555130 app.out`main at main.c:2:3
+   1   	int main() {
+-> 2   	  return 0;
+   3   	}
+(lldb) register write rax 0xffffffffffffffff
+(lldb) register read rax
+     rax = 0xffffffffffffffff
+(lldb) disassemble --pc
+app.out`main:
+->  0x555555555130 <+0>: xorl   %eax, %eax
+    0x555555555132 <+2>: retq
+    0x555555555133:      addb   %dh, %bl
+(lldb) thread step-inst
+Process 409020 stopped
+* thread #1, name = 'app.out', stop reason = instruction step into
+    frame #0: 0x0000555555555132 app.out`main at main.c:2:3
+   1   	int main() {
+-> 2   	  return 0;
+   3   	}
+(lldb) disassemble --pc
+app.out`main:
+->  0x555555555132 <+2>: retq
+    0x555555555133:      addb   %dh, %bl
+(lldb) register read rax
+     rax = 0x0000000000000000
+(lldb)
+{% endhighlight %}
+
+The LLDB output confirms that even though `xorl` only targets the lower 32 bits `%eax` register,
+the hardware automatically cleared the entire 64-bit `%rax` register.
 
 #### Caller/Callee Arguments
 {% highlight bash %}
