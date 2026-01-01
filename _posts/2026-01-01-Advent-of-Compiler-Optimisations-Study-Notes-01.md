@@ -28,7 +28,7 @@ $ lldb -v
 lldb version 18.1.8
 {% endhighlight %}
 
-#### The different between `-O0`, `-O1`, and `-O2`
+#### The difference between `-O0`, `-O1`, and `-O2`
 
 Basically, we know the compiler has the following stages. If we use the same code but choose different 
 optimization levels, the final assembly code will be different.
@@ -42,7 +42,7 @@ Source Code (*.c) --->  |    &     |  --->   |  Optimizer |  --->   |  Generator
                         '----------'         '------------'         '------------'       
 {% endhighlight %}
 
-For now, we use `main.c` as input (shown below), apply different optimization level, 
+For now, we use `main.c` as input (shown below), apply different optimization levels, 
 and use `llvm-objdump` to analyze the corresponding assembly code.
 
 {% highlight bash %}
@@ -113,7 +113,7 @@ text	   data	    bss	    dec	    hex	filename
 
 It reduces the output from six instructions to three by removing the stack frame setup. 
 
-###### Use `-O2` as optimzing level
+###### Use `-O2` as optimization level
 {% highlight bash %}
 $ rm -f *.o; gcc -O2 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 {% endhighlight %}
@@ -138,9 +138,9 @@ text	   data	    bss	    dec	    hex	filename
   87	      0	      0	     87	     57	main.o
 {% endhighlight %}
 
-As you can see, `-02` and `-O1` are both produce three instructions. 
+As you can see, `-O2` and `-O1` both produce three instructions. 
 The only differences is that `-O2` changes from `movl` to `xorl`. 
-The reason is the instructon size. `xorl %eax, %eax` only use two bytes,
+The reason is the instruction size. `xorl %eax, %eax` only use two bytes,
 making it smaller than the five bytes `movl  $0x0, %eax`.
 Hence, you can see the total `.text` size reduces from 90 bytes to 87 bytes.
 
@@ -161,7 +161,7 @@ Disassembly of section .text:
        2: c3                            retq
 {% endhighlight %}
 
-You will find that the Clang's `-O1` output already use `xorl`, making it similar to GCC's `-O2`.
+You will find that the Clang's `-O1` output already uses `xorl`, making it similar to GCC's `-O2`.
 Additionally, it consists of only two instructions because Clang does not generate the `endbr64` instruction.
 
 #### Why `eax`, not `rax` ?
@@ -190,8 +190,8 @@ Disassembly of section .text:
        2: c3                            retq
 {% endhighlight %}
 
-As we know, the x86-64 calling converstion requires the return value to be stored in the 
-64-bit `rax` register. However, we see that the compiler use the 32-bit `eax` register for the `xorl` instruction. 
+As we know, the x86-64 calling convention requires the return value to be stored in the 
+64-bit `rax` register. However, we see that the compiler uses the 32-bit `eax` register for the `xorl` instruction. 
 The reason is that in x86-64, any operation that writes to a 32-bit register automatically zero-extends the result
 into the upper 32 bits of the corresponding 64-bit register. 
 
@@ -289,7 +289,7 @@ Disassembly of section .text:
 {% endhighlight %}
 
 According to the x86-64 System V ABI, the first six integer or pointer arguments are passed in
-specific registers. To pass `0` to all of them, the compiler again use the `xorl` optimization to
+specific registers. To pass `0` to all of them, the compiler again uses the `xorl` optimization to
 zero out each one:
 
 | Argument | 64-bit Register | 32-bit Register |
@@ -301,8 +301,8 @@ zero out each one:
 | 5th      | `%r8`           | `%r8d`          |
 | 6th      | `%r9`           | `%r9d`          |
 
-The `xorl` optimization does not only apper for return values, you will also see it frequently
-when a caller prepares arguments for a callee, As with the previous example, zeroing the 32-bit
+The `xorl` optimization does not only appear for return values, you will also see it frequently
+when a caller prepares arguments for a callee. As with the previous example, zeroing the 32-bit
 version of these registers automatically zero-extends to the full 64-bit register.   
 
 ## References
