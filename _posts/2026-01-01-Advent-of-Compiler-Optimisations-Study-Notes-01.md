@@ -164,25 +164,25 @@ Additionally, it consists of only two instructions because Clang does not genera
 #### Why `eax`, not `rax` ?
 
 {% highlight bash %}
-$ nvim test2.c
+$ nvim get_val.c
 {% endhighlight %}
 
 ```c
-long get_zero_long() {
+long get_val() {
   return 0;
 }
 ```
 
 {% highlight bash %}
-$ rm -f *.o; clang -O2 -c test2.c; llvm-objdump -d --x86-asm-syntax=att test2.o
+$ rm -f *.o; clang -O2 -c get_val.c; llvm-objdump -d --x86-asm-syntax=att get_val.o
 {% endhighlight %}
 
 {% highlight bash %}
-test2.o:  file format elf64-x86-64
+get_val.o:  file format elf64-x86-64
 
 Disassembly of section .text:
 
-0000000000000000 <get_zero_long>:
+0000000000000000 <get_val>:
        0: 31 c0                         xorl  %eax, %eax
        2: c3                            retq
 {% endhighlight %}
