@@ -192,7 +192,7 @@ As we know, the x86-64 calling converstion requires the return value to be store
 The reason is that in x86-64, any operation that writes to a 32-bit register automatically zero-extends the result
 into the upper 32 bits of the corresponding 64-bit register. 
 
-#### Functon Arguments
+#### Caller/Callee Arguments
 {% highlight bash %}
 $ nvim main.c
 {% endhighlight %}
