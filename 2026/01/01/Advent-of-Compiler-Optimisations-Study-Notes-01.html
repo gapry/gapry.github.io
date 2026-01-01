@@ -150,7 +150,7 @@ Ubuntu LLVM version 18.1.8
 <span class="nv">$ </span>lldb <span class="nt">-v</span>
 lldb version 18.1.8</code></pre></figure>
 
-<h4 id="the-different-between--o0--o1-and--o2">The different between <code class="language-plaintext highlighter-rouge">-O0</code>, <code class="language-plaintext highlighter-rouge">-O1</code>, and <code class="language-plaintext highlighter-rouge">-O2</code></h4>
+<h4 id="the-difference-between--o0--o1-and--o2">The difference between <code class="language-plaintext highlighter-rouge">-O0</code>, <code class="language-plaintext highlighter-rouge">-O1</code>, and <code class="language-plaintext highlighter-rouge">-O2</code></h4>
 
 <p>Basically, we know the compiler has the following stages. If we use the same code but choose different 
 optimization levels, the final assembly code will be different.</p>
@@ -162,7 +162,7 @@ Source Code <span class="o">(</span><span class="k">*</span>.c<span class="o">)<
                         |  Parser  |         |            |         | <span class="o">(</span>e.g. x86<span class="o">)</span> |
                         <span class="s1">'----------'</span>         <span class="s1">'------------'</span>         <span class="s1">'------------'</span>       </code></pre></figure>
 
-<p>For now, we use <code class="language-plaintext highlighter-rouge">main.c</code> as input (shown below), apply different optimization level, 
+<p>For now, we use <code class="language-plaintext highlighter-rouge">main.c</code> as input (shown below), apply different optimization levels, 
 and use <code class="language-plaintext highlighter-rouge">llvm-objdump</code> to analyze the corresponding assembly code.</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim main.c</code></pre></figure>
@@ -218,7 +218,7 @@ Disassembly of section .text:
 
 <p>It reduces the output from six instructions to three by removing the stack frame setup.</p>
 
-<h6 id="use--o2-as-optimzing-level">Use <code class="language-plaintext highlighter-rouge">-O2</code> as optimzing level</h6>
+<h6 id="use--o2-as-optimization-level">Use <code class="language-plaintext highlighter-rouge">-O2</code> as optimization level</h6>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> gcc <span class="nt">-O2</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o</code></pre></figure>
 
@@ -236,9 +236,9 @@ Disassembly of section .text:
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">text	   data	    bss	    dec	    hex	filename
   87	      0	      0	     87	     57	main.o</code></pre></figure>
 
-<p>As you can see, <code class="language-plaintext highlighter-rouge">-02</code> and <code class="language-plaintext highlighter-rouge">-O1</code> are both produce three instructions. 
+<p>As you can see, <code class="language-plaintext highlighter-rouge">-O2</code> and <code class="language-plaintext highlighter-rouge">-O1</code> both produce three instructions. 
 The only differences is that <code class="language-plaintext highlighter-rouge">-O2</code> changes from <code class="language-plaintext highlighter-rouge">movl</code> to <code class="language-plaintext highlighter-rouge">xorl</code>. 
-The reason is the instructon size. <code class="language-plaintext highlighter-rouge">xorl %eax, %eax</code> only use two bytes,
+The reason is the instruction size. <code class="language-plaintext highlighter-rouge">xorl %eax, %eax</code> only use two bytes,
 making it smaller than the five bytes <code class="language-plaintext highlighter-rouge">movl  $0x0, %eax</code>.
 Hence, you can see the total <code class="language-plaintext highlighter-rouge">.text</code> size reduces from 90 bytes to 87 bytes.</p>
 
@@ -256,7 +256,7 @@ Disassembly of section .text:
        0: 31 c0                         xorl  %eax, %eax
        2: c3                            retq</code></pre></figure>
 
-<p>You will find that the Clang’s <code class="language-plaintext highlighter-rouge">-O1</code> output already use <code class="language-plaintext highlighter-rouge">xorl</code>, making it similar to GCC’s <code class="language-plaintext highlighter-rouge">-O2</code>.
+<p>You will find that the Clang’s <code class="language-plaintext highlighter-rouge">-O1</code> output already uses <code class="language-plaintext highlighter-rouge">xorl</code>, making it similar to GCC’s <code class="language-plaintext highlighter-rouge">-O2</code>.
 Additionally, it consists of only two instructions because Clang does not generate the <code class="language-plaintext highlighter-rouge">endbr64</code> instruction.</p>
 
 <h4 id="why-eax-not-rax-">Why <code class="language-plaintext highlighter-rouge">eax</code>, not <code class="language-plaintext highlighter-rouge">rax</code> ?</h4>
@@ -281,8 +281,8 @@ Disassembly of section .text:
        0: 31 c0                         xorl  %eax, %eax
        2: c3                            retq</code></pre></figure>
 
-<p>As we know, the x86-64 calling converstion requires the return value to be stored in the 
-64-bit <code class="language-plaintext highlighter-rouge">rax</code> register. However, we see that the compiler use the 32-bit <code class="language-plaintext highlighter-rouge">eax</code> register for the <code class="language-plaintext highlighter-rouge">xorl</code> instruction. 
+<p>As we know, the x86-64 calling convention requires the return value to be stored in the 
+64-bit <code class="language-plaintext highlighter-rouge">rax</code> register. However, we see that the compiler uses the 32-bit <code class="language-plaintext highlighter-rouge">eax</code> register for the <code class="language-plaintext highlighter-rouge">xorl</code> instruction. 
 The reason is that in x86-64, any operation that writes to a 32-bit register automatically zero-extends the result
 into the upper 32 bits of the corresponding 64-bit register.</p>
 
@@ -380,7 +380,7 @@ Disassembly of section .text:
        e: e9 00 00 00 00               	jmp	0x13 &lt;f+0x13&gt;</code></pre></figure>
 
 <p>According to the x86-64 System V ABI, the first six integer or pointer arguments are passed in
-specific registers. To pass <code class="language-plaintext highlighter-rouge">0</code> to all of them, the compiler again use the <code class="language-plaintext highlighter-rouge">xorl</code> optimization to
+specific registers. To pass <code class="language-plaintext highlighter-rouge">0</code> to all of them, the compiler again uses the <code class="language-plaintext highlighter-rouge">xorl</code> optimization to
 zero out each one:</p>
 
 <table>
@@ -425,8 +425,8 @@ zero out each one:</p>
   </tbody>
 </table>
 
-<p>The <code class="language-plaintext highlighter-rouge">xorl</code> optimization does not only apper for return values, you will also see it frequently
-when a caller prepares arguments for a callee, As with the previous example, zeroing the 32-bit
+<p>The <code class="language-plaintext highlighter-rouge">xorl</code> optimization does not only appear for return values, you will also see it frequently
+when a caller prepares arguments for a callee. As with the previous example, zeroing the 32-bit
 version of these registers automatically zero-extends to the full 64-bit register.</p>
 
 <h2 id="references">References</h2>
