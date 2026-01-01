@@ -194,37 +194,57 @@ into the upper 32 bits of the corresponding 64-bit register.
 
 #### Functon Arguments
 {% highlight bash %}
-$ nvim test3.c
+$ nvim main.c
 {% endhighlight %}
 
 ```c
-extern void fun(long arg1, 
-                long arg2, 
-                long arg3, 
-                long arg4, 
-                long arg5, 
-                long arg6);
+extern void g(long arg1, 
+              long arg2, 
+              long arg3, 
+              long arg4, 
+              long arg5, 
+              long arg6);
 
-void test() {
-  fun(0, 0, 0, 0, 0, 0);
+void f() {
+  g(0, 0, 0, 0, 0, 0);
 }
 ```
 
 {% highlight bash %}
-$ rm -f *.o; clang -O2 -c test3.c; llvm-objdump -d --x86-asm-syntax=att test3.o
+$ rm -f *.o; clang -O2 -c main.c; llvm-objdump -d --disassemble-symbols=f --x86-asm-syntax=att main.o
 {% endhighlight %}
 
 {% highlight bash %}
-test3.o:  file format elf64-x86-64
+main.o:	file format elf64-x86-64
 
 Disassembly of section .text:
 
-0000000000000000 <test>:
-       0: 31 ff                         xorl  %edi, %edi
-       2: 31 f6                         xorl  %esi, %esi
-       4: 31 d2                         xorl  %edx, %edx
-       6: 31 c9                         xorl  %ecx, %ecx
-       8: 45 31 c0                      xorl  %r8d, %r8d
-       b: 45 31 c9                      xorl  %r9d, %r9d
-       e: e9 00 00 00 00                jmp 0x13 <test+0x13>
+0000000000000000 <f>:
+       0: 31 ff                        	xorl	%edi, %edi
+       2: 31 f6                        	xorl	%esi, %esi
+       4: 31 d2                        	xorl	%edx, %edx
+       6: 31 c9                        	xorl	%ecx, %ecx
+       8: 45 31 c0                     	xorl	%r8d, %r8d
+       b: 45 31 c9                     	xorl	%r9d, %r9d
+       e: e9 00 00 00 00               	jmp	0x13 <f+0x13>
 {% endhighlight %}
+
+According to the x86-64 System V ABI, the first six integer or pointer arguments are passed in
+specific registers. To pass `0` to all of them, the compiler again use the `xorl` optimization to
+zero out each one:
+
+| Argument | 64-bit Register | 32-bit Register |
+| :---     | :---            | :---            |
+| 1st      | `%rdi`          | `%edi`          |
+| 2nd      | `%rsi`          | `%esi`          |
+| 3rd      | `%rdx`          | `%edx`          |
+| 4th      | `%rcx`          | `%ecx`          |
+| 5th      | `%r8`           | `%r8d`          |
+| 6th      | `%r9`           | `%r9d`          |
+
+The `xorl` optimization does not only apper for return values, you will also see it frequently
+when a caller prepares arguments for a callee, As with the previous example, zeroing the 32-bit
+version of these registers automatically zero-extends to the full 64-bit register.   
+
+## References
+- [x64 architecture](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/x64-architecture)
