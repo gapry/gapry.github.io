@@ -71,10 +71,10 @@ However, the x86-64 ISA does not support a three-operand format for standard add
 The format for the `add` instruction is `add source, destination`, which executes the operation
 `destination = destination + source`.
 
-Because the hardware logic requires the destination regiter to overlap with one of the source operands,
+Because the hardware logic requires the destination register to overlap with one of the source operands,
 the compiler cannot map `a = b + c` directly to a signle `add` instruction. To prevent overwriting the original 
 value of `b` or `c` before the operation is executed, the compile need to use `mov` instruction to 
-initialize the destination with one of the operands frist:
+initialize the destination with one of the operands first:
 
 {% highlight bash %}
 movl    -0x4(%rbp), %eax
@@ -98,21 +98,92 @@ Disassembly of section .text:
        3: c3                            retq
 {% endhighlight %}
 
-At the -O2 level, the compiler maps the C logic return x + y directly into a single lea instruction. 
-Because lea supports two source registers, the compiler can take two independent inputs (%rdi and %rsi) and 
-store the result in an independent destination (%eax) without overwriting the original operands.
-this allows the a = b + c logic to be executed in one step, 
-eliminating the need for the extra mov instruction required at the -O0 level.
+At the `-O2` level, the compiler maps the `C` logic return `x + y` directly into a single `lea` instruction. 
+Because lea supports two source registers, the compiler can take two independent inputs (`%rdi` and `%rsi`) and 
+store the result in an independent destination (`%eax`) without overwriting the original operands.
+this allows the `a = b + c` logic to be executed in one step, 
+eliminating the need for the extra mov instruction required at the `-O0` level.
+
+## Proof of Concept
+The following assembly code demonstrates these two approaches: 
+one utilizing the `mov` + `add` instruction sequence, 
+and the other employing a single `lea` instruction.
+
+{% highlight bash %}
+$ nvim add.s
+{% endhighlight %}
+
+```
+.section .note.GNU-stack, "", @progbits
+
+.section .rodata
+  fmt: .string "Result: %d\n"
+
+.section .text
+  .globl main
+  .extern printf
+
+main:
+  pushq   %rbp
+  movq    %rsp, %rbp
+
+  # --- Case A: Using mov + add ---
+  movl    $1, %edx
+  movl    $2, %ecx
+  movl    %edx, %eax
+  addl    %ecx, %eax
+
+  # Print Result
+  movq    fmt@GOTPCREL(%rip), %rdi
+  movslq  %eax, %rsi
+  movl    $0, %eax
+  call    printf
+
+  # --- Case B: Using lea ---
+  movl    $1, %edx
+  movl    $2, %ecx
+  leal    (%edx, %ecx), %eax
+
+  # Print Result
+  movq    fmt@GOTPCREL(%rip), %rdi
+  movslq  %eax, %rsi
+  movl    $0, %eax
+  call    printf
+
+  movl    $0, %eax
+  popq    %rbp
+  retq
+```
+
+{% highlight bash %}
+$ rm -f (path filter *.out); clang -o add.out add.s; ./add.out
+Result: 3
+Result: 3
+{% endhighlight %}
+
+As demonstrated, both approaches produce identical results, confirming that the single `lea` instruction is 
+logically equivalent to the `a = b + c` mathematical operation.
 
 ## YouTube Comment Insights
 
 Since YouTube does not currently support generating direct permanent links to individual comments, 
-I have reproduced the relevant technical insight below in its entirety to ensure both accuracy and proper attribution
+I have reproduced the relevant technical insight below in its entirety to ensure both accuracy and proper attribution.
 
 {% highlight bash %}
 @sulix314
-
 LEA doesnt affect flags. While this is sometimes annoying (when you need to carry with ADC), 
 it is often extremely useful because you can perform arithmetic without destroying the flag state 
 needed for a subsequent conditional jump or another calculation.
+
+@incubus3827
+In addition, LEA could run on the V-pipeline in the original Pentium, which often allowed performing some arithmetics + reshuffling registers 
+for no additional cycles. A true gamechanger for software rasterizers.
+
+@mytech6779 
+I recall the LEA instruction also uses a dedicated module on the CPU with an independent execution pipeline, 
+so the LEA operation can be concurrent with an ALU operation. 
+I cant say the address module addition [in isolation] is faster or the same cycle count as the ALU, 
+but being specialized I imagine the address module is somewhat simpler with fewer transistors 
+(reducing area and heat some small amount).
+
 {% endhighlight %}
