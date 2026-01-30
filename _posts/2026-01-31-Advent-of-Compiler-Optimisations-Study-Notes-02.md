@@ -9,7 +9,13 @@ tag: compiler
 
 These notes are based on the post [**Addressing the adding situation**](https://xania.org/202512/02-adding-integers) and the YouTube video [**[AoCO 2/25] Adding Integers on x86 - just an ADD, right?**](https://www.youtube.com/watch?v=BOvg0sGJnes&list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&index=3) which are Day 2 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
 
-Written by me and assisted by AI, proofread by me and assisted by AI. Technical insights from the YouTube comment section have been cross-referenced and integrated into these notes.
+My notes focus on reproducing and verifying [Matt Godbolt](https://xania.org/MattGodbolt)'s teaching within a local development environment using `LLVM` toolchain on `Ubuntu`.
+
+Additionally, I have extended the discussion by implementing a manual Proof of Concept in assembly to demonstrate the equivalence of `add` vs `lea` instructions.
+
+Selected technical insights from the YouTube comment section are reproduced at the end of these notes to provide additional context.
+
+Written by me and assisted by AI, proofread by me and assisted by AI. 
 
 #### Development Environment
 {% highlight bash %}
@@ -21,9 +27,6 @@ Ubuntu clang version 18.1.8
 
 $ llvm-objdump -v
 Ubuntu LLVM version 18.1.8
-
-$ lldb -v
-lldb version 18.1.8
 
 $ echo $SHELL
 /usr/bin/fish
@@ -72,8 +75,8 @@ The format for the `add` instruction is `add source, destination`, which execute
 `destination = destination + source`.
 
 Because the hardware logic requires the destination register to overlap with one of the source operands,
-the compiler cannot map `a = b + c` directly to a signle `add` instruction. To prevent overwriting the original 
-value of `b` or `c` before the operation is executed, the compile need to use `mov` instruction to 
+the compiler cannot map `a = b + c` directly to a single `add` instruction. To prevent overwriting the original 
+value of `b` or `c` before the operation is executed, the compiler need to use `mov` instruction to 
 initialize the destination with one of the operands first:
 
 {% highlight bash %}
@@ -101,7 +104,7 @@ Disassembly of section .text:
 At the `-O2` level, the compiler maps the `C` logic return `x + y` directly into a single `lea` instruction. 
 Because lea supports two source registers, the compiler can take two independent inputs (`%rdi` and `%rsi`) and 
 store the result in an independent destination (`%eax`) without overwriting the original operands.
-this allows the `a = b + c` logic to be executed in one step, 
+This allows the `a = b + c` logic to be executed in one step, 
 eliminating the need for the extra mov instruction required at the `-O0` level.
 
 ## Proof of Concept
