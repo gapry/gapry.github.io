@@ -75,7 +75,7 @@ The format for the `add` instruction is `add source, destination`, which execute
 `destination = destination + source`.
 
 Because the hardware logic requires the destination register to overlap with one of the source operands,
-the compiler cannot map `a = b + c` directly to a single `add` instruction. To prevent overwriting the original 
+the compiler cannot translate `a = b + c` directly to a single `add` instruction. To prevent overwriting the original 
 value of `b` or `c` before the operation is executed, the compiler need to use `mov` instruction to 
 initialize the destination with one of the operands first:
 
@@ -101,7 +101,7 @@ Disassembly of section .text:
        3: c3                            retq
 {% endhighlight %}
 
-At the `-O2` level, the compiler maps the `C` logic return `x + y` directly into a single `lea` instruction. 
+At the `-O2` level, the compiler translate the `C` logic return `x + y` directly into a single `lea` instruction. 
 Because lea supports two source registers, the compiler can take two independent inputs (`%rdi` and `%rsi`) and 
 store the result in an independent destination (`%eax`) without overwriting the original operands.
 This allows the `a = b + c` logic to be executed in one step, 
