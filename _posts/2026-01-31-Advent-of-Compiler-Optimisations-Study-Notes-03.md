@@ -63,6 +63,8 @@ int main(void) {
 
 ## Unoptimized Analysis
 
+The following analysis examines the unoptimized assembly code generated with the `-O0` flag.
+
 {% highlight bash %}
 $ rm -f (path filter *.out); clang -O0 -target aarch64-linux-gnu --sysroot=/usr/aarch64-linux-gnu -static add.c -o app.out; qemu-aarch64 ./app.out
 11 = 11
@@ -152,14 +154,18 @@ if `y > 0`, the Program Counter (`PC`) jumps to the Recursive Case;
 otherwise, it jumps to the Base Case.
 
 #### Part 04: The Base Case: `y == 0`
-```
+{% highlight bash %}
 400814: b85fc3a0      ldur    w0, [x29, #-0x4]        // [Base Case] Load 'x' into w0
 400818: b90007e0      str     w0, [sp, #0x4]          // Store 'x' as the potential return value
 40081c: 14000008      b       0x40083c <add+0x4c>     // Jump to epilogue (return) (Part 06)
-```
+{% endhighlight %}
+
+When the base case is met, the value of `x` is loaded into register `W0`. 
+The compiler then executes a `store` operation from register `W0` to stack memory to preserve the 
+return value.
 
 #### Part 05: The Recursive Step: `add(x + 1, y - 1)`
-```
+{% highlight bash %}
 400820: b85fc3a8      ldur    w8, [x29, #-0x4]        // [Recursive Case] Load 'x' into w8
 400824: 11000500      add     w0, w8, #0x1            // w0 = x + 1 (Preparing 1st argument)
 400828: b9400be8      ldr     w8, [sp, #0x8]          // Load 'y' into w8
@@ -167,19 +173,25 @@ otherwise, it jumps to the Base Case.
 400830: 97fffff0      bl      0x4007f0 <add>          // Recursive call: add(x + 1, y - 1)
 400834: b90007e0      str     w0, [sp, #0x4]          // Store the recursive result onto stack
 400838: 14000001      b       0x40083c <add+0x4c>     // Jump to epilogue (return)
-```
+{% endhighlight %}
+
+The compiler prepares the arguments for the recursive call by loading values from the stack into registers `w0` (`x + 1`) and `w1` (`y - 1`) according to the Procedure Call Standard. 
+The `bl` (Branch with Link) instruction then executes the recursive call, redirecting the Control Flow back to the function start. 
+Once the recursive call returns, the resulting value in `w0` is stored into stack memory before jumping to the epilogue.
 
 #### Part 06: Function Epilogue
-```
+{% highlight bash %}
 40083c: b94007e0      ldr     w0, [sp, #0x4]          // Load the result from stack into w0
 400840: a9417bfd      ldp     x29, x30, [sp, #0x10]   // Restore Frame Pointer and Link Register
 400844: 910083ff      add     sp, sp, #0x20           // Deallocate stack space
 400848: d65f03c0      ret                             // Return to caller
-```
+{% endhighlight %}
 
-The epilogue reverses the prologue's work. 
-It restores the caller's environment and deallocates the 32 bytes of stack space
-
+The function epilogue restores the caller's execution environment. 
+The return value is loaded from stack memory into register `w0`. 
+The `ldp` instruction performs a pair load to restore the frame pointer (`x29`) and link register (`x30`). 
+Finally, the stack pointer (`sp`) is incremented by 32 bytes to perform stack deallocation before the ret instruction 
+redirects the Control Flow back to the address stored in the link register.
 
 ## Optimized Analysis
 
