@@ -56,7 +56,7 @@ int main(void) {
   unsigned a = 1;
   unsigned b = 10;
   unsigned r = add(a, b);
-  printf("%d = %d\n", r, a + b);
+  printf("%u = %u\n", r, a + b);
   return 0;
 }
 ```
