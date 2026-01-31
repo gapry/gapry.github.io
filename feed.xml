@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-01-31T00:04:34+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Study Notes: Addressing the adding situation</title><link href="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html" rel="alternate" type="text/html" title="Study Notes: Addressing the adding situation" /><published>2026-01-31T00:00:00+00:00</published><updated>2026-01-31T00:00:00+00:00</updated><id>/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02</id><content type="html" xml:base="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html"><![CDATA[<h2 id="study-notes-addressing-the-adding-situation">Study Notes: Addressing the adding situation</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-01-31T14:04:50+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Study Notes: Addressing the adding situation</title><link href="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html" rel="alternate" type="text/html" title="Study Notes: Addressing the adding situation" /><published>2026-01-31T00:00:00+00:00</published><updated>2026-01-31T00:00:00+00:00</updated><id>/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02</id><content type="html" xml:base="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html"><![CDATA[<h2 id="study-notes-addressing-the-adding-situation">Study Notes: Addressing the adding situation</h2>
 
 <p>These notes are based on the post <a href="https://xania.org/202512/02-adding-integers"><strong>Addressing the adding situation</strong></a> and the YouTube video <a href="https://www.youtube.com/watch?v=BOvg0sGJnes&amp;list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&amp;index=3"><strong>[AoCO 2/25] Adding Integers on x86 - just an ADD, right?</strong></a> which are Day 2 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
 
@@ -202,7 +202,256 @@ I recall the LEA instruction also uses a dedicated module on the CPU with an ind
 so the LEA operation can be concurrent with an ALU operation. 
 I can't say the address module addition [in isolation] is faster or the same cycle count as the ALU, 
 but being specialized I imagine the address module is somewhat simpler with fewer transistors 
-(reducing area and heat some small amount).</code></pre></figure>]]></content><author><name></name></author><category term="compiler" /><summary type="html"><![CDATA[Study Notes: Addressing the adding situation]]></summary></entry><entry><title type="html">Study Notes: Why xor eax, eax?</title><link href="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html" rel="alternate" type="text/html" title="Study Notes: Why xor eax, eax?" /><published>2026-01-01T00:00:00+00:00</published><updated>2026-01-01T00:00:00+00:00</updated><id>/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01</id><content type="html" xml:base="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html"><![CDATA[<h2 id="study-notes-why-xor-eax-eax">Study Notes: Why xor eax, eax?</h2>
+(reducing area and heat some small amount).</code></pre></figure>]]></content><author><name></name></author><category term="compiler" /><summary type="html"><![CDATA[Study Notes: Addressing the adding situation]]></summary></entry><entry><title type="html">Study Notes: You can’t fool the optimiser</title><link href="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-03.html" rel="alternate" type="text/html" title="Study Notes: You can’t fool the optimiser" /><published>2026-01-31T00:00:00+00:00</published><updated>2026-01-31T00:00:00+00:00</updated><id>/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-03</id><content type="html" xml:base="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-03.html"><![CDATA[<h2 id="study-notes-you-cant-fool-the-optimiser">Study Notes: You can’t fool the optimiser</h2>
+
+<p>These notes are based on the post <a href="https://xania.org/202512/03-more-adding-integers"><strong>You can’t fool the optimiser</strong></a> and the YouTube video <a href="https://www.youtube.com/watch?v=wHg9lYPMvvE&amp;list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&amp;index=4"><strong>[AoCO 3/25] More Adding</strong></a> which are Day 3 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
+
+<p>My notes focus on reproducing and verifying <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>’s teaching within a local development environment using <code class="language-plaintext highlighter-rouge">LLVM</code> toolchain on <code class="language-plaintext highlighter-rouge">Ubuntu</code>.</p>
+
+<p>Written by me and assisted by AI, proofread by me and assisted by AI.</p>
+
+<h2 id="development-environment">Development Environment</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>lsb_release <span class="nt">-d</span>
+Description:	Ubuntu 24.04.3 LTS
+
+<span class="nv">$ </span>clang <span class="nt">-v</span>
+Ubuntu clang version 18.1.8
+
+<span class="nv">$ </span><span class="nb">sudo </span>apt <span class="nb">install </span>gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+<span class="nv">$ </span>aarch64-linux-gnu-gcc <span class="nt">-v</span>
+<span class="nv">COLLECT_GCC</span><span class="o">=</span>aarch64-linux-gnu-gcc
+gcc version 13.3.0 <span class="o">(</span>Ubuntu 13.3.0-6ubuntu2~24.04<span class="o">)</span>
+
+<span class="nv">$ </span>qemu-aarch64 <span class="nt">-version</span>
+qemu-aarch64 version 8.2.2 <span class="o">(</span>Debian 1:8.2.2+ds-0ubuntu1.11<span class="o">)</span>
+
+<span class="nv">$ </span>llvm-objdump <span class="nt">-v</span>
+Ubuntu LLVM version 18.1.8
+
+<span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$SHELL</span>
+/usr/bin/fish</code></pre></figure>
+
+<h2 id="recursion-integer-addition">Recursion Integer Addition</h2>
+
+<p>We can observe the compiler’s optimization by implementing addition through recursion, as shown in the following code:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim add.c</code></pre></figure>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">unsigned</span> <span class="nf">add</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">x</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">x</span> <span class="o">:</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">unsigned</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="n">r</span> <span class="o">=</span> <span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">"%u = %u</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="unoptimized-analysis">Unoptimized Analysis</h2>
+
+<p>The following analysis examines the unoptimized assembly code generated with the <code class="language-plaintext highlighter-rouge">-O0</code> flag.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="o">(</span>path filter <span class="k">*</span>.out<span class="o">)</span><span class="p">;</span> clang <span class="nt">-O0</span> <span class="nt">-target</span> aarch64-linux-gnu <span class="nt">--sysroot</span><span class="o">=</span>/usr/aarch64-linux-gnu <span class="nt">-static</span> add.c <span class="nt">-o</span> app.out<span class="p">;</span> qemu-aarch64 ./app.out
+11 <span class="o">=</span> 11</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>llvm-objdump <span class="nt">-d</span> <span class="nt">--disassemble-symbols</span><span class="o">=</span>add app.out
+
+app.out:        file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+00000000004007f0 &lt;add&gt;:
+  4007f0: d10083ff      sub     sp, sp, <span class="c">#0x20           // Allocate 32 bytes on stack</span>
+  4007f4: a9017bfd      stp     x29, x30, <span class="o">[</span>sp, <span class="c">#0x10]   // Save Frame Pointer (x29) and Link Register (x30)</span>
+  4007f8: 910043fd      add     x29, sp, <span class="c">#0x10          // Set up new Frame Pointer</span>
+  4007fc: b81fc3a0      stur    w0, <span class="o">[</span>x29, <span class="c">#-0x4]        // Store 'x' (w0) into stack</span>
+  400800: b9000be1      str     w1, <span class="o">[</span>sp, <span class="c">#0x8]          // Store 'y' (w1) into stack</span>
+  400804: b9400be8      ldr     w8, <span class="o">[</span>sp, <span class="c">#0x8]          // Load 'y' from stack into w8</span>
+  400808: 71000108      subs    w8, w8, <span class="c">#0x0            // Compare w8 (y) with 0</span>
+  40080c: 540000a8      b.hi    0x400820 &lt;add+0x30&gt;     // If y <span class="o">&gt;</span> 0, jump to recursive <span class="k">case</span> <span class="o">(</span>400820<span class="p">)</span>
+  400810: 14000001      b       0x400814 &lt;add+0x24&gt;     // Else, branch to base <span class="k">case</span> logic
+  400814: b85fc3a0      ldur    w0, <span class="o">[</span>x29, <span class="c">#-0x4]        // [Base Case] Load 'x' into w0</span>
+  400818: b90007e0      str     w0, <span class="o">[</span>sp, <span class="c">#0x4]          // Store 'x' as the potential return value</span>
+  40081c: 14000008      b       0x40083c &lt;add+0x4c&gt;     // Jump to epilogue <span class="o">(</span><span class="k">return</span><span class="p">)</span>
+  400820: b85fc3a8      ldur    w8, <span class="o">[</span>x29, <span class="c">#-0x4]        // [Recursive Case] Load 'x' into w8</span>
+  400824: 11000500      add     w0, w8, <span class="c">#0x1            // w0 = x + 1 (Preparing 1st argument)</span>
+  400828: b9400be8      ldr     w8, <span class="o">[</span>sp, <span class="c">#0x8]          // Load 'y' into w8</span>
+  40082c: 71000501      subs    w1, w8, <span class="c">#0x1            // w1 = y - 1 (Preparing 2nd argument)</span>
+  400830: 97fffff0      bl      0x4007f0 &lt;add&gt;          // Recursive call: add<span class="o">(</span>x + 1, y - 1<span class="o">)</span>
+  400834: b90007e0      str     w0, <span class="o">[</span>sp, <span class="c">#0x4]          // Store the recursive result onto stack</span>
+  400838: 14000001      b       0x40083c &lt;add+0x4c&gt;     // Jump to epilogue <span class="o">(</span><span class="k">return</span><span class="o">)</span>
+  40083c: b94007e0      ldr     w0, <span class="o">[</span>sp, <span class="c">#0x4]          // Load the result from stack into w0</span>
+  400840: a9417bfd      ldp     x29, x30, <span class="o">[</span>sp, <span class="c">#0x10]   // Restore Frame Pointer and Link Register</span>
+  400844: 910083ff      add     sp, sp, <span class="c">#0x20           // Deallocate stack space</span>
+  400848: d65f03c0      ret                             // Return to <span class="nb">caller</span></code></pre></figure>
+
+<h4 id="part-01-function-prologue">Part 01: Function Prologue</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">4007f0: d10083ff      sub     sp, sp, <span class="c">#0x20           // Allocate 32 bytes on stack</span>
+4007f4: a9017bfd      stp     x29, x30, <span class="o">[</span>sp, <span class="c">#0x10]   // Save Frame Pointer (x29) and Link Register (x30)</span>
+4007f8: 910043fd      add     x29, sp, <span class="c">#0x10          // Set up new Frame Pointer</span></code></pre></figure>
+
+<p>Each recursive invocation initiates a Function Prologue to establish the execution context. 
+The instruction <code class="language-plaintext highlighter-rouge">sub sp, sp, #0x20</code> performs Stack Allocation by decrementing the Stack Pointer (<code class="language-plaintext highlighter-rouge">SP</code>), reserving 32 bytes for the current Stack Frame.
+The subsequent <code class="language-plaintext highlighter-rouge">stp</code> (Store Pair) instruction implements Context Saving, pushing the Frame Pointer (<code class="language-plaintext highlighter-rouge">X29</code>) and Link Register (<code class="language-plaintext highlighter-rouge">X30</code>) onto the stack to 
+facilitate the Stack Unwinding process during the Function Epilogue.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">| Higher Address |
+|                |
++----------------+ &lt;<span class="nt">---</span> Previous SP
+| Unused / Local | <span class="o">(</span>16 bytes<span class="o">)</span>
++----------------+ 
+|  Link Register | <span class="o">(</span>X30<span class="o">)</span>
++----------------+ &lt;<span class="nt">---</span> X29 <span class="o">(</span>New Frame Pointer<span class="o">)</span>
+|  Frame Pointer | <span class="o">(</span>X29<span class="o">)</span>
++----------------+ &lt;<span class="nt">---</span> SP  <span class="o">(</span>Current Stack Pointer<span class="o">)</span>
+|                |
+|  Lower Address |  </code></pre></figure>
+
+<h4 id="part-02-parameter-storage">Part 02: Parameter Storage</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">4007fc: b81fc3a0      stur    w0, <span class="o">[</span>x29, <span class="c">#-0x4]        // Store 'x' (w0) into stack</span>
+400800: b9000be1      str     w1, <span class="o">[</span>sp, <span class="c">#0x8]          // Store 'y' (w1) into stack</span>
+400804: b9400be8      ldr     w8, <span class="o">[</span>sp, <span class="c">#0x8]          // Load 'y' from stack into w8</span></code></pre></figure>
+
+<p>The input parameters <code class="language-plaintext highlighter-rouge">x</code> and <code class="language-plaintext highlighter-rouge">y</code> are stored from registers (<code class="language-plaintext highlighter-rouge">w0</code> and <code class="language-plaintext highlighter-rouge">w1</code>) into stack memory. 
+Since it is at the <code class="language-plaintext highlighter-rouge">-O0</code> optimization level, 
+an additional instruction is used to load <code class="language-plaintext highlighter-rouge">y</code> from stack memory back into a register (<code class="language-plaintext highlighter-rouge">w8</code>) for subsequent conditional evaluation.</p>
+
+<h4 id="part-03-branching">Part 03: Branching</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">400808: 71000108      subs    w8, w8, <span class="c">#0x0            // Compare w8 (y) with 0</span>
+40080c: 540000a8      b.hi    0x400820 &lt;add+0x30&gt;     // If y <span class="o">&gt;</span> 0, jump to recursive <span class="k">case</span> <span class="o">(</span>400820<span class="p">)</span>
+400810: 14000001      b       0x400814 &lt;add+0x24&gt;     // Else, branch to base <span class="k">case</span> logic</code></pre></figure>
+
+<p>The subs instruction performs an arithmetic subtraction to compare <code class="language-plaintext highlighter-rouge">y</code> (in <code class="language-plaintext highlighter-rouge">W8</code>) with <code class="language-plaintext highlighter-rouge">0</code>, 
+updating the Condition Flags in the processor’s state register. 
+The <code class="language-plaintext highlighter-rouge">b.hi</code> (Branch if Higher) instruction then evaluates these flags: 
+if <code class="language-plaintext highlighter-rouge">y &gt; 0</code>, the Program Counter (<code class="language-plaintext highlighter-rouge">PC</code>) jumps to the Recursive Case; 
+otherwise, it jumps to the Base Case.</p>
+
+<h4 id="part-04-the-base-case-y--0">Part 04: The Base Case: <code class="language-plaintext highlighter-rouge">y == 0</code></h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">400814: b85fc3a0      ldur    w0, <span class="o">[</span>x29, <span class="c">#-0x4]        // [Base Case] Load 'x' into w0</span>
+400818: b90007e0      str     w0, <span class="o">[</span>sp, <span class="c">#0x4]          // Store 'x' as the potential return value</span>
+40081c: 14000008      b       0x40083c &lt;add+0x4c&gt;     // Jump to epilogue <span class="o">(</span><span class="k">return</span><span class="o">)</span> <span class="o">(</span>Part 06<span class="o">)</span></code></pre></figure>
+
+<p>When the base case is met, the value of <code class="language-plaintext highlighter-rouge">x</code> is loaded into register <code class="language-plaintext highlighter-rouge">W0</code>. 
+The compiler then executes a <code class="language-plaintext highlighter-rouge">store</code> operation from register <code class="language-plaintext highlighter-rouge">W0</code> to stack memory to preserve the 
+return value.</p>
+
+<h4 id="part-05-the-recursive-step-addx--1-y---1">Part 05: The Recursive Step: <code class="language-plaintext highlighter-rouge">add(x + 1, y - 1)</code></h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">400820: b85fc3a8      ldur    w8, <span class="o">[</span>x29, <span class="c">#-0x4]        // [Recursive Case] Load 'x' into w8</span>
+400824: 11000500      add     w0, w8, <span class="c">#0x1            // w0 = x + 1 (Preparing 1st argument)</span>
+400828: b9400be8      ldr     w8, <span class="o">[</span>sp, <span class="c">#0x8]          // Load 'y' into w8</span>
+40082c: 71000501      subs    w1, w8, <span class="c">#0x1            // w1 = y - 1 (Preparing 2nd argument)</span>
+400830: 97fffff0      bl      0x4007f0 &lt;add&gt;          // Recursive call: add<span class="o">(</span>x + 1, y - 1<span class="o">)</span>
+400834: b90007e0      str     w0, <span class="o">[</span>sp, <span class="c">#0x4]          // Store the recursive result onto stack</span>
+400838: 14000001      b       0x40083c &lt;add+0x4c&gt;     // Jump to epilogue <span class="o">(</span><span class="k">return</span><span class="o">)</span></code></pre></figure>
+
+<p>The compiler prepares the arguments for the recursive call by loading values from the stack into registers <code class="language-plaintext highlighter-rouge">w0</code> (<code class="language-plaintext highlighter-rouge">x + 1</code>) and <code class="language-plaintext highlighter-rouge">w1</code> (<code class="language-plaintext highlighter-rouge">y - 1</code>) according to the Procedure Call Standard. 
+The <code class="language-plaintext highlighter-rouge">bl</code> (Branch with Link) instruction then executes the recursive call, redirecting the Control Flow back to the function start. 
+Once the recursive call returns, the resulting value in <code class="language-plaintext highlighter-rouge">w0</code> is stored into stack memory before jumping to the epilogue.</p>
+
+<h4 id="part-06-function-epilogue">Part 06: Function Epilogue</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">40083c: b94007e0      ldr     w0, <span class="o">[</span>sp, <span class="c">#0x4]          // Load the result from stack into w0</span>
+400840: a9417bfd      ldp     x29, x30, <span class="o">[</span>sp, <span class="c">#0x10]   // Restore Frame Pointer and Link Register</span>
+400844: 910083ff      add     sp, sp, <span class="c">#0x20           // Deallocate stack space</span>
+400848: d65f03c0      ret                             // Return to <span class="nb">caller</span></code></pre></figure>
+
+<p>The function epilogue restores the caller’s execution environment. 
+The return value is loaded from stack memory into register <code class="language-plaintext highlighter-rouge">w0</code>. 
+The <code class="language-plaintext highlighter-rouge">ldp</code> instruction performs a pair load to restore the frame pointer (<code class="language-plaintext highlighter-rouge">x29</code>) and link register (<code class="language-plaintext highlighter-rouge">x30</code>). 
+Finally, the stack pointer (<code class="language-plaintext highlighter-rouge">sp</code>) is incremented by 32 bytes to perform stack deallocation before the ret instruction 
+redirects the Control Flow back to the address stored in the link register.</p>
+
+<h2 id="optimized-analysis">Optimized Analysis</h2>
+
+<p>The following analysis examines the optimized assembly code generated with the <code class="language-plaintext highlighter-rouge">-O2</code> flag.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="o">(</span>path filter <span class="k">*</span>.out<span class="o">)</span><span class="p">;</span> clang <span class="nt">-O2</span> <span class="nt">-target</span> aarch64-linux-gnu <span class="nt">--sysroot</span><span class="o">=</span>/usr/aarch64-linux-gnu <span class="nt">-static</span> add.c <span class="nt">-o</span> app.out<span class="p">;</span> qemu-aarch64 ./app.out
+11 <span class="o">=</span> 11</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>llvm-objdump <span class="nt">-d</span> <span class="nt">--disassemble-symbols</span><span class="o">=</span>add app.out
+
+app.out:        file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+00000000004007f0 &lt;add&gt;:
+  4007f0: 0b000020      add     w0, w1, w0
+  4007f4: d65f03c0      ret</code></pre></figure>
+
+<h4 id="recursion-call">Recursion Call</h4>
+
+<p>In the unoptimized execution, each recursive call of <code class="language-plaintext highlighter-rouge">add(x + 1, y - 1)</code> triggers the function prologue, 
+resulting in the allocation of a new activation record. 
+This manifests as <code class="language-plaintext highlighter-rouge">O(n)</code> space complexity, as the stack grows linearly with the input value of <code class="language-plaintext highlighter-rouge">y</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">|   Higher Address   |
++--------------------+
+|  add<span class="o">(</span>1, 10<span class="o">)</span> Frame  | <span class="o">(</span>Initial Call: a <span class="o">=</span> 1, b <span class="o">=</span> 10<span class="o">)</span>
++--------------------+
+|  add<span class="o">(</span>2, 9<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>3, 8<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>4, 7<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>5, 6<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>6, 5<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>7, 4<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>8, 3<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>9, 2<span class="o">)</span>  Frame  |
++--------------------+
+|  add<span class="o">(</span>10, 1<span class="o">)</span> Frame  |
++--------------------+
+|  add<span class="o">(</span>11, 0<span class="o">)</span> Frame  | <span class="o">(</span>Base Case: x <span class="o">=</span> 11, returns x<span class="o">)</span>
++--------------------+ &lt;<span class="nt">---</span> SP <span class="o">(</span>Current Stack Pointer<span class="o">)</span>
+|   Lower Address    |</code></pre></figure>
+
+<h4 id="tail-recursion-call">Tail Recursion Call</h4>
+
+<p>The <code class="language-plaintext highlighter-rouge">-O2</code> optimization level identifies the recursive call as a Tail Call. 
+The compiler recognizes that the current stack frame can be reused, 
+as no further operations are required after the callee returns. 
+This reduces the space complexity from <code class="language-plaintext highlighter-rouge">O(n)</code> to <code class="language-plaintext highlighter-rouge">O(1)</code> and eliminates the overhead associated 
+with stack frame allocation and deallocation.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">|   Higher Address   |    |   Higher Address  |           |   Higher Address  |
++--------------------+    +-------------------+           +-------------------+ &lt;<span class="nt">---</span> Previous SP
+|  add<span class="o">(</span>1, 10<span class="o">)</span> Frame  | -&gt; |  add<span class="o">(</span>2, 9<span class="o">)</span> Frame  | -&gt; ... -&gt; |  add<span class="o">(</span>11, 0<span class="o">)</span> Frame |      <span class="o">(</span>Reused <span class="k">for </span>all steps<span class="o">)</span>
++--------------------+    +-------------------+           +-------------------+ &lt;<span class="nt">---</span> SP <span class="o">(</span>Static: Never moves<span class="o">)</span>
+|   Lower Address    |    |   Lower Address   |           |   Lower Address   | </code></pre></figure>
+
+<h4 id="conclusion">Conclusion</h4>
+<p>Through Tail Call Optimization, the compiler optimizes the recursive logic by eliminating the stack-related and control-flow instructions (totaling 21 instructions) into a single <code class="language-plaintext highlighter-rouge">add</code> instructions. 
+It effectively reduces the space complexity from <code class="language-plaintext highlighter-rouge">O(n)</code> to <code class="language-plaintext highlighter-rouge">O(1)</code> and minimizes the execution latency to a single instructions cycle.</p>]]></content><author><name></name></author><category term="compiler" /><summary type="html"><![CDATA[Study Notes: You can’t fool the optimiser]]></summary></entry><entry><title type="html">Study Notes: Why xor eax, eax?</title><link href="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html" rel="alternate" type="text/html" title="Study Notes: Why xor eax, eax?" /><published>2026-01-01T00:00:00+00:00</published><updated>2026-01-01T00:00:00+00:00</updated><id>/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01</id><content type="html" xml:base="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html"><![CDATA[<h2 id="study-notes-why-xor-eax-eax">Study Notes: Why xor eax, eax?</h2>
 
 <p>These notes are based on the post <a href="https://xania.org/202512/01-xor-eax-eax"><strong>Why xor eax, eax?</strong></a>, which is Day 1 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
 

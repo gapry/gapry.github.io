@@ -10,4 +10,10 @@ var store = [{
         "tags": ["compiler"],
         "url": "/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html",
         "teaser": null
+      },{
+        "title": "Study Notes: You can't fool the optimiser",
+        "excerpt":"Study Notes: You can’t fool the optimiser These notes are based on the post You can’t fool the optimiser and the YouTube video [AoCO 3/25] More Adding which are Day 3 of the Advent of Compiler Optimisations 2025 Series by Matt Godbolt. My notes focus on reproducing and verifying Matt...","categories": [],
+        "tags": ["compiler"],
+        "url": "/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-03.html",
+        "teaser": null
       }]
