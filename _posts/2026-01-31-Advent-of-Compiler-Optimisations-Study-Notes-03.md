@@ -212,4 +212,40 @@ Disassembly of section .text:
   4007f4: d65f03c0      ret
 {% endhighlight %}
 
-## Tail Recursion
+#### Recursion Call
+```
+|   Higher Address   |
++--------------------+
+|  add(1, 10) Frame  | (Initial Call: a = 1, b = 10)
++--------------------+
+|  add(2, 9)  Frame  |
++--------------------+
+|  add(3, 8)  Frame  |
++--------------------+
+|  add(4, 7)  Frame  |
++--------------------+
+|  add(5, 6)  Frame  |
++--------------------+
+|  add(6, 5)  Frame  |
++--------------------+
+|  add(7, 4)  Frame  |
++--------------------+
+|  add(8, 3)  Frame  |
++--------------------+
+|  add(9, 2)  Frame  |
++--------------------+
+|  add(10, 1) Frame  |
++--------------------+
+|  add(11, 0) Frame  | (Base Case: x = 11, returns x)
++--------------------+ <--- SP (Current Stack Pointer)
+|   Lower Address    |
+```
+
+#### Tail Recursion Call
+```
+|   Higher Address   |    |   Higher Address  |           |   Higher Address  |
++--------------------+    +-------------------+           +-------------------+ <--- Previous SP
+|  add(1, 10) Frame  | -> |  add(2, 9) Frame  | -> ... -> |  add(11, 0) Frame |      (Reused for all steps)
++--------------------+    +-------------------+           +-------------------+ <--- SP (Static: Never moves)
+|   Lower Address    |    |   Lower Address   |           |   Lower Address   | 
+```
