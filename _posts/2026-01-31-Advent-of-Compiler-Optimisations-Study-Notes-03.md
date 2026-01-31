@@ -104,8 +104,8 @@ Disassembly of section .text:
 #### Part 01: Function Prologue
 ```
 4007f0: d10083ff      sub     sp, sp, #0x20           // Allocate 32 bytes on stack
-4007f4: a9017bfd      stp     x29, x30, [sp, #0x10]   // Save Frame Pointer and Link Register
-4007f8: 910043fd      add     x29, sp, #0x10          // Set up current frame's base
+4007f4: a9017bfd      stp     x29, x30, [sp, #0x10]   // Save Frame Pointer (x29) and Link Register (x30)
+4007f8: 910043fd      add     x29, sp, #0x10          // Set up new Frame Pointer
 ```
 
 #### Part 02: Parameter Storage
@@ -124,9 +124,9 @@ Disassembly of section .text:
 
 #### Part 04: The Base Case: `y == 0`
 ```
-400814: b85fc3a0      ldur    w0, [x29, #-0x4]        // Load 'x' as the result
-400818: b90007e0      str     w0, [sp, #0x4]          // Store result in temporary return slot
-40081c: 14000008      b       0x40083c <add+0x4c>     // Jump to Epilogue (Part 06)
+400814: b85fc3a0      ldur    w0, [x29, #-0x4]        // [Base Case] Load 'x' into w0
+400818: b90007e0      str     w0, [sp, #0x4]          // Store 'x' as the potential return value
+40081c: 14000008      b       0x40083c <add+0x4c>     // Jump to epilogue (return) (Part 06)
 ```
 
 #### Part 05: The Recursive Step: `add(x + 1, y - 1)`
