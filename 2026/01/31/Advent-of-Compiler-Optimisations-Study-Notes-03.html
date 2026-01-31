@@ -270,7 +270,7 @@ an additional instruction is used to load <code class="language-plaintext highli
 40080c: 540000a8      b.hi    0x400820 &lt;add+0x30&gt;     // If y <span class="o">&gt;</span> 0, jump to recursive <span class="k">case</span> <span class="o">(</span>400820<span class="p">)</span>
 400810: 14000001      b       0x400814 &lt;add+0x24&gt;     // Else, branch to base <span class="k">case</span> logic</code></pre></figure>
 
-<p>The subs instruction performs an arithmetic subtraction to compare <code class="language-plaintext highlighter-rouge">y</code> (in <code class="language-plaintext highlighter-rouge">W8</code>) with <code class="language-plaintext highlighter-rouge">0</code>, 
+<p>The subs instruction performs an arithmetic subtraction to compare <code class="language-plaintext highlighter-rouge">y</code> (in <code class="language-plaintext highlighter-rouge">w8</code>) with <code class="language-plaintext highlighter-rouge">0</code>, 
 updating the Condition Flags in the processor’s state register. 
 The <code class="language-plaintext highlighter-rouge">b.hi</code> (Branch if Higher) instruction then evaluates these flags: 
 if <code class="language-plaintext highlighter-rouge">y &gt; 0</code>, the Program Counter (<code class="language-plaintext highlighter-rouge">PC</code>) jumps to the Recursive Case; 
@@ -376,9 +376,14 @@ with stack frame allocation and deallocation.</p>
 +--------------------+    +-------------------+           +-------------------+ &lt;<span class="nt">---</span> SP <span class="o">(</span>Static: Never moves<span class="o">)</span>
 |   Lower Address    |    |   Lower Address   |           |   Lower Address   | </code></pre></figure>
 
+<h4 id="arithmetic-folding">Arithmetic Folding</h4>
+<p>While Tail Call Optimization handles the stack efficiency, Arithmetic Folding is an optimization technique 
+where the compiler analyzes the symbolic behavior of a loop or recursion to replace it with a simplified mathematical expression.</p>
+
 <h4 id="conclusion">Conclusion</h4>
-<p>Through Tail Call Optimization, the compiler optimizes the recursive logic by eliminating the stack-related and control-flow instructions (totaling 21 instructions) into a single <code class="language-plaintext highlighter-rouge">add</code> instructions. 
-It effectively reduces the space complexity from <code class="language-plaintext highlighter-rouge">O(n)</code> to <code class="language-plaintext highlighter-rouge">O(1)</code> and minimizes the execution latency to a single instructions cycle.</p>
+<p>Through Tail Call Optimization and Arithmetic Folding, 
+the compiler optimizes the recursive logic by eliminating the stack-related and control-flow instructions (totaling 21 instructions) into a single <code class="language-plaintext highlighter-rouge">add</code> instruction. 
+It effectively reduces the space complexity from <code class="language-plaintext highlighter-rouge">O(n)</code> to <code class="language-plaintext highlighter-rouge">O(1)</code> and minimizes the execution latency to a single instruction cycle.</p>
 
       
     </div>
