@@ -102,25 +102,54 @@ Disassembly of section .text:
 {% endhighlight %}
 
 #### Part 01: Function Prologue
-```
+{% highlight bash %}
 4007f0: d10083ff      sub     sp, sp, #0x20           // Allocate 32 bytes on stack
 4007f4: a9017bfd      stp     x29, x30, [sp, #0x10]   // Save Frame Pointer (x29) and Link Register (x30)
 4007f8: 910043fd      add     x29, sp, #0x10          // Set up new Frame Pointer
-```
+{% endhighlight %}
+
+Each recursive invocation initiates a Function Prologue to establish the execution context. 
+The instruction `sub sp, sp, #0x20` performs Stack Allocation by decrementing the Stack Pointer (`SP`), reserving 32 bytes for the current Stack Frame.
+The subsequent `stp` (Store Pair) instruction implements Context Saving, pushing the Frame Pointer (`X29`) and Link Register (`X30`) onto the stack to 
+facilitate the Stack Unwinding process during the Function Epilogue.
+
+{% highlight bash %}
+| Higher Address |
+|                |
++----------------+ <--- Previous SP
+| Unused / Local | (16 bytes)
++----------------+ 
+|  Link Register | (X30)
++----------------+ <--- X29 (New Frame Pointer)
+|  Frame Pointer | (X29)
++----------------+ <--- SP  (Current Stack Pointer)
+|                |
+|  Lower Address |  
+{% endhighlight %}
 
 #### Part 02: Parameter Storage
-```
+{% highlight bash %}
 4007fc: b81fc3a0      stur    w0, [x29, #-0x4]        // Store 'x' (w0) into stack
 400800: b9000be1      str     w1, [sp, #0x8]          // Store 'y' (w1) into stack
 400804: b9400be8      ldr     w8, [sp, #0x8]          // Load 'y' from stack into w8
-```
+{% endhighlight %}
+
+The input parameters `x` and `y` are stored from registers (`w0` and `w1`) into stack memory. 
+Since it is at the `-O0` optimization level, 
+an additional instruction is used to load `y` from stack memory back into a register (`w8`) for subsequent conditional evaluation.
 
 #### Part 03: Branching
-```
+{% highlight bash %}
 400808: 71000108      subs    w8, w8, #0x0            // Compare w8 (y) with 0
 40080c: 540000a8      b.hi    0x400820 <add+0x30>     // If y > 0, jump to recursive case (400820)
 400810: 14000001      b       0x400814 <add+0x24>     // Else, branch to base case logic
-```
+{% endhighlight %}
+
+The subs instruction performs an arithmetic subtraction to compare `y` (in `W8`) with `0`, 
+updating the Condition Flags in the processor's state register. 
+The `b.hi` (Branch if Higher) instruction then evaluates these flags: 
+if `y > 0`, the Program Counter (`PC`) jumps to the Recursive Case; 
+otherwise, it jumps to the Base Case.
 
 #### Part 04: The Base Case: `y == 0`
 ```
@@ -147,6 +176,10 @@ Disassembly of section .text:
 400844: 910083ff      add     sp, sp, #0x20           // Deallocate stack space
 400848: d65f03c0      ret                             // Return to caller
 ```
+
+The epilogue reverses the prologue's work. 
+It restores the caller's environment and deallocates the 32 bytes of stack space
+
 
 ## Optimized Analysis
 
