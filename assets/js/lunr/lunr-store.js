@@ -4,4 +4,10 @@ var store = [{
         "tags": ["compiler"],
         "url": "/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html",
         "teaser": null
+      },{
+        "title": "Study Notes: Addressing the adding situation",
+        "excerpt":"Study Notes: Addressing the adding situation These notes are based on the post Addressing the adding situation and the YouTube video [AoCO 2/25] Adding Integers on x86 - just an ADD, right? which are Day 2 of the Advent of Compiler Optimisations 2025 Series by Matt Godbolt. My notes focus...","categories": [],
+        "tags": ["compiler"],
+        "url": "/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html",
+        "teaser": null
       }]

@@ -1,4 +1,208 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-01-30T23:57:02+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Study Notes: Why xor eax, eax?</title><link href="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html" rel="alternate" type="text/html" title="Study Notes: Why xor eax, eax?" /><published>2026-01-01T00:00:00+00:00</published><updated>2026-01-01T00:00:00+00:00</updated><id>/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01</id><content type="html" xml:base="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html"><![CDATA[<h2 id="study-notes-why-xor-eax-eax">Study Notes: Why xor eax, eax?</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-01-31T00:03:58+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Study Notes: Addressing the adding situation</title><link href="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html" rel="alternate" type="text/html" title="Study Notes: Addressing the adding situation" /><published>2026-01-31T00:00:00+00:00</published><updated>2026-01-31T00:00:00+00:00</updated><id>/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02</id><content type="html" xml:base="/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-02.html"><![CDATA[<h2 id="study-notes-addressing-the-adding-situation">Study Notes: Addressing the adding situation</h2>
+
+<p>These notes are based on the post <a href="https://xania.org/202512/02-adding-integers"><strong>Addressing the adding situation</strong></a> and the YouTube video <a href="https://www.youtube.com/watch?v=BOvg0sGJnes&amp;list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&amp;index=3"><strong>[AoCO 2/25] Adding Integers on x86 - just an ADD, right?</strong></a> which are Day 2 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
+
+<p>My notes focus on reproducing and verifying <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>’s teaching within a local development environment using <code class="language-plaintext highlighter-rouge">LLVM</code> toolchain on <code class="language-plaintext highlighter-rouge">Ubuntu</code>.</p>
+
+<p>Additionally, I have extended the discussion by implementing a manual Proof of Concept in assembly to demonstrate the equivalence of <code class="language-plaintext highlighter-rouge">add</code> vs <code class="language-plaintext highlighter-rouge">lea</code> instructions.</p>
+
+<p>Selected technical insights from the YouTube comment section are reproduced at the end of these notes to provide additional context.</p>
+
+<p>Written by me and assisted by AI, proofread by me and assisted by AI.</p>
+
+<h4 id="development-environment">Development Environment</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>lsb_release <span class="nt">-d</span>
+Description:	Ubuntu 24.04.3 LTS
+
+<span class="nv">$ </span>clang <span class="nt">-v</span>
+Ubuntu clang version 18.1.8
+
+<span class="nv">$ </span>llvm-objdump <span class="nt">-v</span>
+Ubuntu LLVM version 18.1.8
+
+<span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$SHELL</span>
+/usr/bin/fish</code></pre></figure>
+
+<h2 id="integer-addition">Integer Addition</h2>
+
+<p>To understand how <code class="language-plaintext highlighter-rouge">clang</code> translates <code class="language-plaintext highlighter-rouge">C</code> addition into <code class="language-plaintext highlighter-rouge">x86-64</code> machine instructions, we use the following implementation</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim add.c</code></pre></figure>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="unoptimized-analysis">Unoptimized Analysis</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="o">(</span>path filter <span class="k">*</span>.o<span class="o">)</span><span class="p">;</span> clang <span class="nt">-O0</span> <span class="nt">-c</span> add.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att add.o</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">add.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;add&gt;:
+       0: 55                            pushq   %rbp
+       1: 48 89 e5                      movq    %rsp, %rbp
+       4: 89 7d <span class="nb">fc                      </span>movl    %edi, <span class="nt">-0x4</span><span class="o">(</span>%rbp<span class="o">)</span>
+       7: 89 75 f8                      movl    %esi, <span class="nt">-0x8</span><span class="o">(</span>%rbp<span class="o">)</span>
+       a: 8b 45 <span class="nb">fc                      </span>movl    <span class="nt">-0x4</span><span class="o">(</span>%rbp<span class="o">)</span>, %eax
+       d: 03 45 f8                      addl    <span class="nt">-0x8</span><span class="o">(</span>%rbp<span class="o">)</span>, %eax
+      10: 5d                            popq    %rbp
+      11: c3                            retq</code></pre></figure>
+
+<p>In C, the expression <code class="language-plaintext highlighter-rouge">a = b + c</code> allows for three distinct variables to execute the addition. 
+However, the x86-64 ISA does not support a three-operand format for standard addition.
+The format for the <code class="language-plaintext highlighter-rouge">add</code> instruction is <code class="language-plaintext highlighter-rouge">add source, destination</code>, which executes the operation
+<code class="language-plaintext highlighter-rouge">destination = destination + source</code>.</p>
+
+<p>Because the hardware logic requires the destination register to overlap with one of the source operands,
+the compiler cannot translate <code class="language-plaintext highlighter-rouge">a = b + c</code> directly to a single <code class="language-plaintext highlighter-rouge">add</code> instruction. To prevent overwriting the original 
+value of <code class="language-plaintext highlighter-rouge">b</code> or <code class="language-plaintext highlighter-rouge">c</code> before the operation is executed, the compiler needs to use <code class="language-plaintext highlighter-rouge">mov</code> instruction to 
+initialize the destination with one of the operands first:</p>
+
+<figure class="highlight"><pre><code class="language-gas" data-lang="gas">movl    -0x4(%rbp), %eax
+addl    -0x8(%rbp), %eax</code></pre></figure>
+
+<p>Hence, the compiler needs to use two instructions to execute the addition at the -O0 level.</p>
+
+<h2 id="optimized-analysis">Optimized Analysis</h2>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">rm</span> <span class="nt">-f</span> <span class="o">(</span>path filter <span class="k">*</span>.o<span class="o">)</span><span class="p">;</span> clang <span class="nt">-O2</span> <span class="nt">-c</span> add.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att add.o</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">add.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;add&gt;:
+       0: 8d 04 37                      leal    <span class="o">(</span>%rdi,%rsi<span class="o">)</span>, %eax
+       3: c3                            retq</code></pre></figure>
+
+<p>At the <code class="language-plaintext highlighter-rouge">-O2</code> level, the compiler translates the <code class="language-plaintext highlighter-rouge">C</code> statement <code class="language-plaintext highlighter-rouge">return x + y;</code> directly into a single <code class="language-plaintext highlighter-rouge">lea</code> instruction. 
+Because lea supports two source registers, the compiler can take two independent inputs (<code class="language-plaintext highlighter-rouge">%rdi</code> and <code class="language-plaintext highlighter-rouge">%rsi</code>) and 
+store the result in an independent destination (<code class="language-plaintext highlighter-rouge">%eax</code>) without overwriting the original operands.
+This allows the <code class="language-plaintext highlighter-rouge">a = b + c</code> logic to be executed in one step, 
+eliminating the need for the extra mov instruction required at the <code class="language-plaintext highlighter-rouge">-O0</code> level.</p>
+
+<h2 id="proof-of-concept">Proof of Concept</h2>
+<p>The following assembly code demonstrates these two approaches: 
+one utilizing the <code class="language-plaintext highlighter-rouge">mov</code> + <code class="language-plaintext highlighter-rouge">add</code> instruction sequence, 
+and the other employing a single <code class="language-plaintext highlighter-rouge">lea</code> instruction.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim add.s</code></pre></figure>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+</pre></td><td class="rouge-code"><pre>.section .note.GNU-stack, "", @progbits
+
+.section .rodata
+  fmt: .string "Result: %d\n"
+
+.section .text
+  .globl main
+  .extern printf
+
+main:
+  pushq   %rbp
+  movq    %rsp, %rbp
+
+  # --- Case A: Using mov + add ---
+  movl    $1, %edx
+  movl    $2, %ecx
+  movl    %edx, %eax
+  addl    %ecx, %eax
+
+  # Print Result
+  movq    fmt@GOTPCREL(%rip), %rdi
+  movslq  %eax, %rsi
+  movl    $0, %eax
+  call    printf
+
+  # --- Case B: Using lea ---
+  movl    $1, %edx
+  movl    $2, %ecx
+  leal    (%edx, %ecx), %eax
+
+  # Print Result
+  movq    fmt@GOTPCREL(%rip), %rdi
+  movslq  %eax, %rsi
+  movl    $0, %eax
+  call    printf
+
+  movl    $0, %eax
+  popq    %rbp
+  retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="o">(</span>path filter <span class="k">*</span>.out<span class="o">)</span><span class="p">;</span> clang <span class="nt">-o</span> add.out add.s<span class="p">;</span> ./add.out
+Result: 3
+Result: 3</code></pre></figure>
+
+<p>As demonstrated, both approaches produce identical results, confirming that the single <code class="language-plaintext highlighter-rouge">lea</code> instruction is 
+logically equivalent to the <code class="language-plaintext highlighter-rouge">a = b + c</code> mathematical operation.</p>
+
+<h2 id="youtube-comment-insights">YouTube Comment Insights</h2>
+
+<p>Since YouTube does not currently support generating direct permanent links to individual comments, 
+I have reproduced the relevant technical insight below in its entirety to ensure both accuracy and proper attribution.</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">@sulix314
+LEA doesn't affect flags. While this is sometimes annoying (when you need to carry with ADC), 
+it is often extremely useful because you can perform arithmetic without destroying the flag state 
+needed for a subsequent conditional jump or another calculation.
+
+@incubus3827
+In addition, LEA could run on the V-pipeline in the original Pentium, which often allowed performing some arithmetics + reshuffling registers 
+for no additional cycles. A true gamechanger for software rasterizers.
+
+@mytech6779 
+I recall the LEA instruction also uses a dedicated module on the CPU with an independent execution pipeline, 
+so the LEA operation can be concurrent with an ALU operation. 
+I can't say the address module addition [in isolation] is faster or the same cycle count as the ALU, 
+but being specialized I imagine the address module is somewhat simpler with fewer transistors 
+(reducing area and heat some small amount).</code></pre></figure>]]></content><author><name></name></author><category term="compiler" /><summary type="html"><![CDATA[Study Notes: Addressing the adding situation]]></summary></entry><entry><title type="html">Study Notes: Why xor eax, eax?</title><link href="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html" rel="alternate" type="text/html" title="Study Notes: Why xor eax, eax?" /><published>2026-01-01T00:00:00+00:00</published><updated>2026-01-01T00:00:00+00:00</updated><id>/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01</id><content type="html" xml:base="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html"><![CDATA[<h2 id="study-notes-why-xor-eax-eax">Study Notes: Why xor eax, eax?</h2>
 
 <p>These notes are based on the post <a href="https://xania.org/202512/01-xor-eax-eax"><strong>Why xor eax, eax?</strong></a>, which is Day 1 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
 
