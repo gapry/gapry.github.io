@@ -147,7 +147,7 @@ an additional instruction is used to load `y` from stack memory back into a regi
 400810: 14000001      b       0x400814 <add+0x24>     // Else, branch to base case logic
 {% endhighlight %}
 
-The subs instruction performs an arithmetic subtraction to compare `y` (in `W8`) with `0`, 
+The subs instruction performs an arithmetic subtraction to compare `y` (in `w8`) with `0`, 
 updating the Condition Flags in the processor's state register. 
 The `b.hi` (Branch if Higher) instruction then evaluates these flags: 
 if `y > 0`, the Program Counter (`PC`) jumps to the Recursive Case; 
