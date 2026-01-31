@@ -264,6 +264,11 @@ with stack frame allocation and deallocation.
 |   Lower Address    |    |   Lower Address   |           |   Lower Address   | 
 {% endhighlight %}
 
+#### Arithmetic Folding
+While Tail Call Optimization handles the stack efficiency, Arithmetic Folding is an optimization technique 
+where the compiler analyzes the symbolic behavior of a loop or recursion to replace it with a simplified mathematical expression.
+
 #### Conclusion
-Through Tail Call Optimization, the compiler optimizes the recursive logic by eliminating the stack-related and control-flow instructions (totaling 21 instructions) into a single `add` instructions. 
-It effectively reduces the space complexity from `O(n)` to `O(1)` and minimizes the execution latency to a single instructions cycle.
+Through Tail Call Optimization and Arithmetic Folding, 
+the compiler optimizes the recursive logic by eliminating the stack-related and control-flow instructions (totaling 21 instructions) into a single `add` instruction. 
+It effectively reduces the space complexity from `O(n)` to `O(1)` and minimizes the execution latency to a single instruction cycle.
