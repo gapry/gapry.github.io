@@ -37,7 +37,10 @@ $ echo $SHELL
 
 {% endhighlight %}
 
-## Integer Addition
+## Recursion Integer Addition
+
+We can observe the compiler's optimization by implementing addition through recursion, as shown in the following code:
+
 {% highlight bash %}
 $ nvim add.c
 {% endhighlight %}
@@ -73,29 +76,29 @@ app.out:        file format elf64-littleaarch64
 Disassembly of section .text:
 
 00000000004007f0 <add>:
-  4007f0: d10083ff      sub     sp, sp, #0x20
-  4007f4: a9017bfd      stp     x29, x30, [sp, #0x10]
-  4007f8: 910043fd      add     x29, sp, #0x10
-  4007fc: b81fc3a0      stur    w0, [x29, #-0x4]
-  400800: b9000be1      str     w1, [sp, #0x8]
-  400804: b9400be8      ldr     w8, [sp, #0x8]
-  400808: 71000108      subs    w8, w8, #0x0
-  40080c: 540000a8      b.hi    0x400820 <add+0x30>
-  400810: 14000001      b       0x400814 <add+0x24>
-  400814: b85fc3a0      ldur    w0, [x29, #-0x4]
-  400818: b90007e0      str     w0, [sp, #0x4]
-  40081c: 14000008      b       0x40083c <add+0x4c>
-  400820: b85fc3a8      ldur    w8, [x29, #-0x4]
-  400824: 11000500      add     w0, w8, #0x1
-  400828: b9400be8      ldr     w8, [sp, #0x8]
-  40082c: 71000501      subs    w1, w8, #0x1
-  400830: 97fffff0      bl      0x4007f0 <add>
-  400834: b90007e0      str     w0, [sp, #0x4]
-  400838: 14000001      b       0x40083c <add+0x4c>
-  40083c: b94007e0      ldr     w0, [sp, #0x4]
-  400840: a9417bfd      ldp     x29, x30, [sp, #0x10]
-  400844: 910083ff      add     sp, sp, #0x20
-  400848: d65f03c0      ret
+  4007f0: d10083ff      sub     sp, sp, #0x20           // Allocate 32 bytes on stack
+  4007f4: a9017bfd      stp     x29, x30, [sp, #0x10]   // Save Frame Pointer (x29) and Link Register (x30)
+  4007f8: 910043fd      add     x29, sp, #0x10          // Set up new Frame Pointer
+  4007fc: b81fc3a0      stur    w0, [x29, #-0x4]        // Store 'x' (w0) into stack
+  400800: b9000be1      str     w1, [sp, #0x8]          // Store 'y' (w1) into stack
+  400804: b9400be8      ldr     w8, [sp, #0x8]          // Load 'y' from stack into w8
+  400808: 71000108      subs    w8, w8, #0x0            // Compare w8 (y) with 0
+  40080c: 540000a8      b.hi    0x400820 <add+0x30>     // If y > 0, jump to recursive case (400820)
+  400810: 14000001      b       0x400814 <add+0x24>     // Else, branch to base case logic
+  400814: b85fc3a0      ldur    w0, [x29, #-0x4]        // [Base Case] Load 'x' into w0
+  400818: b90007e0      str     w0, [sp, #0x4]          // Store 'x' as the potential return value
+  40081c: 14000008      b       0x40083c <add+0x4c>     // Jump to epilogue (return)
+  400820: b85fc3a8      ldur    w8, [x29, #-0x4]        // [Recursive Case] Load 'x' into w8
+  400824: 11000500      add     w0, w8, #0x1            // w0 = x + 1 (Preparing 1st argument)
+  400828: b9400be8      ldr     w8, [sp, #0x8]          // Load 'y' into w8
+  40082c: 71000501      subs    w1, w8, #0x1            // w1 = y - 1 (Preparing 2nd argument)
+  400830: 97fffff0      bl      0x4007f0 <add>          // Recursive call: add(x + 1, y - 1)
+  400834: b90007e0      str     w0, [sp, #0x4]          // Store the recursive result onto stack
+  400838: 14000001      b       0x40083c <add+0x4c>     // Jump to epilogue (return)
+  40083c: b94007e0      ldr     w0, [sp, #0x4]          // Load the result from stack into w0
+  400840: a9417bfd      ldp     x29, x30, [sp, #0x10]   // Restore Frame Pointer and Link Register
+  400844: 910083ff      add     sp, sp, #0x20           // Deallocate stack space
+  400848: d65f03c0      ret                             // Return to caller
 {% endhighlight %}
 
 ## Optimized Analysis
