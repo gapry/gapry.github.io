@@ -195,6 +195,8 @@ redirects the Control Flow back to the address stored in the link register.
 
 ## Optimized Analysis
 
+The following analysis examines the optimized assembly code generated with the `-O2` flag.
+
 {% highlight bash %}
 $ rm -f (path filter *.out); clang -O2 -target aarch64-linux-gnu --sysroot=/usr/aarch64-linux-gnu -static add.c -o app.out; qemu-aarch64 ./app.out
 11 = 11
@@ -213,7 +215,12 @@ Disassembly of section .text:
 {% endhighlight %}
 
 #### Recursion Call
-```
+
+In the unoptimized execution, each recursive call of `add(x + 1, y - 1)` triggers the function prologue, 
+resulting in the allocation of a new activation record. 
+This manifests as `O(n)` space complexity, as the stack grows linearly with the input value of `y`.
+
+{% highlight bash %}
 |   Higher Address   |
 +--------------------+
 |  add(1, 10) Frame  | (Initial Call: a = 1, b = 10)
@@ -239,13 +246,24 @@ Disassembly of section .text:
 |  add(11, 0) Frame  | (Base Case: x = 11, returns x)
 +--------------------+ <--- SP (Current Stack Pointer)
 |   Lower Address    |
-```
+{% endhighlight %}
 
 #### Tail Recursion Call
-```
+
+The `-O2` optimization level identifies the recursive call as a Tail Call. 
+The compiler recognizes that the current stack frame can be reused, 
+as no further operations are required after the callee returns. 
+This reduces the space complexity from `O(n)` to `O(1)` and eliminates the overhead associated 
+with stack frame allocation and deallocation.
+
+{% highlight bash %}
 |   Higher Address   |    |   Higher Address  |           |   Higher Address  |
 +--------------------+    +-------------------+           +-------------------+ <--- Previous SP
 |  add(1, 10) Frame  | -> |  add(2, 9) Frame  | -> ... -> |  add(11, 0) Frame |      (Reused for all steps)
 +--------------------+    +-------------------+           +-------------------+ <--- SP (Static: Never moves)
 |   Lower Address    |    |   Lower Address   |           |   Lower Address   | 
-```
+{% endhighlight %}
+
+#### Conclusion
+Through Tail Call Optimization, the compiler optimizes the recursive logic by eliminating the stack-related and control-flow instructions (totaling 21 instructions) into a single `add` instructions. 
+It effectively reduces the space complexity from `O(n)` to `O(1)` and minimizes the execution latency to a single instructions cycle.
