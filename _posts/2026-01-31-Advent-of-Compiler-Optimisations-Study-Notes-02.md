@@ -1,11 +1,11 @@
 ---
 layout: default
-title: "Study Notes: Addressing the adding situation"
+title: "Study Notes: Addressing the adding situation, Advent of Compiler Optimisations 2025"
 date: 2026-01-31
 tag: compiler
 ---
 
-## Study Notes: Addressing the adding situation
+## Study Notes: Addressing the adding situation, Advent of Compiler Optimisations 2025
 
 These notes are based on the post [**Addressing the adding situation**](https://xania.org/202512/02-adding-integers) and the YouTube video [**[AoCO 2/25] Adding Integers on x86 - just an ADD, right?**](https://www.youtube.com/watch?v=BOvg0sGJnes&list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&index=3) which are Day 2 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
 
@@ -18,7 +18,7 @@ Selected technical insights from the YouTube comment section are reproduced at t
 Written by me and assisted by AI, proofread by me and assisted by AI. 
 
 #### Development Environment
-{% highlight bash %}
+```
 $ lsb_release -d
 Description:	Ubuntu 24.04.3 LTS
 
@@ -28,18 +28,20 @@ Ubuntu clang version 18.1.8
 $ llvm-objdump -v
 Ubuntu LLVM version 18.1.8
 
+$ nvim --version
+NVIM v0.11.5
+
 $ echo $SHELL
 /usr/bin/fish
-
-{% endhighlight %}
+```
 
 ## Integer Addition
 
 To understand how `clang` translates `C` addition into `x86-64` machine instructions, we use the following implementation
 
-{% highlight bash %}
+```
 $ nvim add.c
-{% endhighlight %}
+```
 
 ```c
 int add(int x, int y) {
@@ -49,11 +51,11 @@ int add(int x, int y) {
 
 ## Unoptimized Analysis
 
-{% highlight bash %}
+```
 $ rm -f (path filter *.o); clang -O0 -c add.c; llvm-objdump -d --x86-asm-syntax=att add.o
-{% endhighlight %}
+```
 
-{% highlight bash %}
+```
 add.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -67,7 +69,7 @@ Disassembly of section .text:
        d: 03 45 f8                      addl    -0x8(%rbp), %eax
       10: 5d                            popq    %rbp
       11: c3                            retq
-{% endhighlight %}
+```
 
 In C, the expression `a = b + c` allows for three distinct variables to execute the addition. 
 However, the x86-64 ISA does not support a three-operand format for standard addition.
@@ -79,19 +81,19 @@ the compiler cannot translate `a = b + c` directly to a single `add` instruction
 value of `b` or `c` before the operation is executed, the compiler needs to use `mov` instruction to 
 initialize the destination with one of the operands first:
 
-{% highlight gas %}
+```
 movl    -0x4(%rbp), %eax
 addl    -0x8(%rbp), %eax
-{% endhighlight %}
+```
 
 Hence, the compiler needs to use two instructions to execute the addition at the -O0 level. 
 
 ## Optimized Analysis
-{% highlight bash %}
+```
 rm -f (path filter *.o); clang -O2 -c add.c; llvm-objdump -d --x86-asm-syntax=att add.o
-{% endhighlight %}
+```
 
-{% highlight bash %}
+```
 add.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -99,7 +101,7 @@ Disassembly of section .text:
 0000000000000000 <add>:
        0: 8d 04 37                      leal    (%rdi,%rsi), %eax
        3: c3                            retq
-{% endhighlight %}
+```
 
 At the `-O2` level, the compiler translates the `C` statement `return x + y;` directly into a single `lea` instruction. 
 Because lea supports two source registers, the compiler can take two independent inputs (`%rdi` and `%rsi`) and 
@@ -112,9 +114,9 @@ The following assembly code demonstrates these two approaches:
 one utilizing the `mov` + `add` instruction sequence, 
 and the other employing a single `lea` instruction.
 
-{% highlight bash %}
+```
 $ nvim add.s
-{% endhighlight %}
+```
 
 ```
 .section .note.GNU-stack, "", @progbits
@@ -158,11 +160,11 @@ main:
   retq
 ```
 
-{% highlight bash %}
+```
 $ rm -f (path filter *.out); clang -o add.out add.s; ./add.out
 Result: 3
 Result: 3
-{% endhighlight %}
+```
 
 As demonstrated, both approaches produce identical results, confirming that the single `lea` instruction is 
 logically equivalent to the `a = b + c` mathematical operation.
@@ -172,7 +174,7 @@ logically equivalent to the `a = b + c` mathematical operation.
 Since YouTube does not currently support generating direct permanent links to individual comments, 
 I have reproduced the relevant technical insight below in its entirety to ensure both accuracy and proper attribution.
 
-{% highlight text %}
+```
 @sulix314
 LEA doesn't affect flags. While this is sometimes annoying (when you need to carry with ADC), 
 it is often extremely useful because you can perform arithmetic without destroying the flag state 
@@ -188,5 +190,4 @@ so the LEA operation can be concurrent with an ALU operation.
 I can't say the address module addition [in isolation] is faster or the same cycle count as the ALU, 
 but being specialized I imagine the address module is somewhat simpler with fewer transistors 
 (reducing area and heat some small amount).
-
-{% endhighlight %}
+```
