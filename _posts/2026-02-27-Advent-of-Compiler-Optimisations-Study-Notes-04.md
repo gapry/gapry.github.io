@@ -39,7 +39,7 @@ After studying the Day 04 YouTube video and blog post, I conducted a series of s
 
 By analyzing the assembly output for each case, I identified and selected 10 distinct compiler optimization strategies. 
 
-These notes document those specific patterns, filtering out redundant results to highlight the unique ways the compiler avoids high-latency instructions.
+These notes document specific patterns and filter out redundant results, highlighting unique compiler optimization strategies.
 
 ## Case 01 : `x * 2`
 
