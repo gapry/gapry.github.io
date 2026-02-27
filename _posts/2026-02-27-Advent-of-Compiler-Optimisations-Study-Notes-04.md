@@ -69,7 +69,7 @@ Disassembly of section .text:
 
 The compiler avoids the `imul` instruction because it prefer `shift / add / LEA` because:
 - Constant multiplication can often be expressed using free address generation
-- `lea` can compute `x + `x * scale` without using ALU ports
+- `lea` can compute `x + x * scale` without using ALU ports
 - It may reduce dependency chains
 
 Here, it uses the leal instruction to perform `x + x` in a single cycle. 
@@ -324,7 +324,7 @@ Disassembly of section .text:
 
 According the x86-64 calling convention, the result must be returned in %eax. 
 The compiler cannot simply generate a single `shll $0x4, %edi` instruction.
-It need to generate an extra instruciton to move the input value from `%edi` to `%eax` before the shift operation.
+It need to generate an extra instruction to move the input value from `%edi` to `%eax` before the shift operation.
 
 ## Case 10: `x * 17`
 
