@@ -16,4 +16,10 @@ var store = [{
         "tags": ["compiler"],
         "url": "/2026/01/31/Advent-of-Compiler-Optimisations-Study-Notes-03.html",
         "teaser": null
+      },{
+        "title": "Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025",
+        "excerpt":"Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025 These notes are based on the post Multiplying with a constant and the YouTube video [AoCO 4/25] Multiplying with a Constant which are Day 4 of the Advent of Compiler Optimisations 2025 Series by Matt Godbolt. My notes focus...","categories": [],
+        "tags": ["compiler"],
+        "url": "/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html",
+        "teaser": null
       }]

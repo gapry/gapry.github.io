@@ -1,0 +1,722 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.26.2 by Michael Rose
+  Copyright 2013-2024 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025 - Gapry’s Blog</title>
+<meta name="description" content="Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Gapry's Blog">
+<meta property="og:title" content="Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025">
+<meta property="og:url" content="/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html">
+
+
+  <meta property="og:description" content="Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2026-02-27T00:00:00+00:00">
+
+
+
+
+
+
+<link rel="canonical" href="/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Gapry's Blog Feed">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript">
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+  
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css"></noscript>
+
+
+
+    
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4DG3HSBT1T"></script>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  
+  gtag('js', new Date());
+  gtag('config', 'G-4DG3HSBT1T', { 'anonymize_ip': true });
+</script>
+
+
+
+
+  </head>
+
+  <body class="layout--default">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Gapry's Blog
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a
+                href="/about/"
+                
+                
+              >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      <h2 id="study-notes-multiplying-with-a-constant-advent-of-compiler-optimisations-2025">Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025</h2>
+
+<p>These notes are based on the post <a href="https://xania.org/202512/04-multiplying-integers"><strong>Multiplying with a constant</strong></a> and the YouTube video <a href="https://www.youtube.com/watch?v=1X88od0miHs&amp;list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&amp;index=5"><strong>[AoCO 4/25] Multiplying with a Constant</strong></a> which are Day 4 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
+
+<p>My notes focus on reproducing and verifying <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>’s teaching within a local development environment using <code class="language-plaintext highlighter-rouge">LLVM</code> toolchain on <code class="language-plaintext highlighter-rouge">Ubuntu</code>.</p>
+
+<p>Selected technical insights from the YouTube comment section are reproduced at the end of these notes to provide additional context.</p>
+
+<p>Written by me and assisted by AI, proofread by me and assisted by AI.</p>
+
+<h4 id="development-environment">Development Environment</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>$ lsb_release -d
+Description:	Ubuntu 24.04.3 LTS
+
+$ clang -v
+Ubuntu clang version 18.1.8
+
+$ llvm-objdump -v
+Ubuntu LLVM version 18.1.8
+
+$ nvim --version
+NVIM v0.11.5
+
+$ echo $SHELL
+/usr/bin/fish
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>After studying the Day 04 YouTube video and blog post, I conducted a series of sequential tests by multiplying <code class="language-plaintext highlighter-rouge">x</code> by every constant from <code class="language-plaintext highlighter-rouge">2</code> to <code class="language-plaintext highlighter-rouge">20</code>.</p>
+
+<p>By analyzing the assembly output for each case, I identified and selected 10 distinct compiler optimization strategies.</p>
+
+<p>These notes document those specific patterns, filtering out redundant results to highlight the unique ways the compiler avoids high-latency instructions.</p>
+
+<h2 id="case-01--x--2">Case 01 : <code class="language-plaintext highlighter-rouge">x * 2</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 2;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 8d 04 3f                      leal    (%rdi,%rdi), %eax
+       3: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The compiler avoids the <code class="language-plaintext highlighter-rouge">imul</code> instruction because it prefer <code class="language-plaintext highlighter-rouge">shift / add / LEA</code> because:</p>
+<ul>
+  <li>Constant multiplication can often be expressed using free address generation</li>
+  <li><code class="language-plaintext highlighter-rouge">lea</code> can compute <code class="language-plaintext highlighter-rouge">x + </code>x * scale` without using ALU ports</li>
+  <li>It may reduce dependency chains</li>
+</ul>
+
+<p>Here, it uses the leal instruction to perform <code class="language-plaintext highlighter-rouge">x + x</code> in a single cycle.</p>
+
+<h2 id="case-02-x--3">Case 02: <code class="language-plaintext highlighter-rouge">x * 3</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 3;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 8d 04 7f                      leal    (%rdi,%rdi,2), %eax
+       3: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>It utilizes x86 the <code class="language-plaintext highlighter-rouge">lea</code> with <strong>Base + (Index * Scale)</strong> addressing to calculate <code class="language-plaintext highlighter-rouge">x + x * 2</code></p>
+
+<h2 id="case-03-x--4">Case 03: <code class="language-plaintext highlighter-rouge">x * 4</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 4;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 8d 04 bd 00 00 00 00          leal    (,%rdi,4), %eax
+       7: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Using the <code class="language-plaintext highlighter-rouge">lea</code> instruction with a scale factor enables multiplication to be performed in a single instruction, 
+eliminating the need for separate shift and multiply instructions.</p>
+
+<h2 id="case-04--x--6">Case 04 : <code class="language-plaintext highlighter-rouge">x * 6</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 6;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 01 ff                         addl    %edi, %edi
+       2: 8d 04 7f                      leal    (%rdi,%rdi,2), %eax
+       5: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The compiler splits the multiplication <code class="language-plaintext highlighter-rouge">x * 6</code> into two distinct steps: first <code class="language-plaintext highlighter-rouge">x + x</code>, followed by <code class="language-plaintext highlighter-rouge">2x + (2x * 2)</code>.</p>
+
+<p>You might wonder why the compiler doesn’t simply use a single instruction like <code class="language-plaintext highlighter-rouge">leal (%rdi,%rdi,6), %eax</code>.</p>
+
+<p>The reason lies in the instruction encoding.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">leal</code> instruction calculates addresses using the formula <strong>Base + (Index * Scale)</strong>, where the scale factor is encoded at the bit level.</p>
+
+<p>If we assume the scale field uses <strong>2 bits</strong> within the instruction encoding, there are only four possible binary combinations: <code class="language-plaintext highlighter-rouge">00</code>, <code class="language-plaintext highlighter-rouge">01</code>, <code class="language-plaintext highlighter-rouge">10</code>, and <code class="language-plaintext highlighter-rouge">11</code>.</p>
+
+<p>These bits correspond to the multipliers <strong>1, 2, 4, and 8</strong>. Because of this limitation, it is not possible for the hardware to represent a scale of <code class="language-plaintext highlighter-rouge">6</code>.</p>
+
+<p>Consequently, the compiler must break the operation into multiple valid steps to achieve the desired result.</p>
+
+<h2 id="case-05--x--7">Case 05 : <code class="language-plaintext highlighter-rouge">x * 7</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 7;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 8d 04 fd 00 00 00 00          leal    (,%rdi,8), %eax
+       7: 29 f8                         subl    %edi, %eax
+       9: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The compiler uses <strong>multiply and subtract</strong> logic: It first scales <code class="language-plaintext highlighter-rouge">x</code> by 8 using leal and then subtracts the original <code class="language-plaintext highlighter-rouge">x</code>.</p>
+
+<h2 id="case-06--x--11">Case 06 : <code class="language-plaintext highlighter-rouge">x * 11</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 11;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 8d 04 bf                      leal    (%rdi,%rdi,4), %eax
+       3: 8d 04 47                      leal    (%rdi,%rax,2), %eax
+       6: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The compiler splits the multiplication <code class="language-plaintext highlighter-rouge">x * 11</code> into two distinct steps: 
+first <code class="language-plaintext highlighter-rouge">x + x * 4</code>, followed by <code class="language-plaintext highlighter-rouge">x + (5x * 2)</code>.</p>
+
+<h2 id="case-07--x--12">Case 07 : <code class="language-plaintext highlighter-rouge">x * 12</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 12;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: c1 e7 02                      shll    $0x2, %edi
+       3: 8d 04 7f                      leal    (%rdi,%rdi,2), %eax
+       6: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The compiler splits the multiplication <code class="language-plaintext highlighter-rouge">x * 12</code> into two distinct steps: 
+first <code class="language-plaintext highlighter-rouge">x &lt;&lt; 2</code>, followed by <code class="language-plaintext highlighter-rouge">4x + (4x * 2)</code>.</p>
+
+<h2 id="case-08-x--14">Case 08: <code class="language-plaintext highlighter-rouge">x * 14</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 14;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 89 f8                         movl    %edi, %eax
+       2: 8d 0c 00                      leal    (%rax,%rax), %ecx
+       5: c1 e0 04                      shll    $0x4, %eax
+       8: 29 c8                         subl    %ecx, %eax
+       a: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The compiler splits the multiplication <code class="language-plaintext highlighter-rouge">x * 14</code> into three distinct steps:</p>
+<ol>
+  <li>calculates 2x and store it in ecx (<code class="language-plaintext highlighter-rouge">ecx = x + x</code>)</li>
+  <li>calculates 16x and store it in eax (<code class="language-plaintext highlighter-rouge">eax = 16 * x</code>)</li>
+  <li>calculates 14x by subtracting the two results (<code class="language-plaintext highlighter-rouge">eax - ecx = 16x - 2x = 14x</code>)</li>
+</ol>
+
+<h2 id="case-09-x--16">Case 09: <code class="language-plaintext highlighter-rouge">x * 16</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 16;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 89 f8                         movl    %edi, %eax
+       2: c1 e0 04                      shll    $0x4, %eax
+       5: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>According the x86-64 calling convention, the result must be returned in %eax. 
+The compiler cannot simply generate a single <code class="language-plaintext highlighter-rouge">shll $0x4, %edi</code> instruction.
+It need to generate an extra instruciton to move the input value from <code class="language-plaintext highlighter-rouge">%edi</code> to <code class="language-plaintext highlighter-rouge">%eax</code> before the shift operation.</p>
+
+<h2 id="case-10-x--17">Case 10: <code class="language-plaintext highlighter-rouge">x * 17</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ nvim mul.c
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>int mul(int x) {
+  return x * 17;
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>$ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>mul.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 89 f8                         movl    %edi, %eax
+       2: c1 e0 04                      shll    $0x4, %eax
+       5: 01 f8                         addl    %edi, %eax
+       7: c3                            retq
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Similar to case 09, we first need to move the input value from <code class="language-plaintext highlighter-rouge">%edi</code> to <code class="language-plaintext highlighter-rouge">%eax</code> to satisfy the calling convention. 
+Then we get <code class="language-plaintext highlighter-rouge">16 * x</code>. Finally, we get <code class="language-plaintext highlighter-rouge">x + 16x</code>.</p>
+
+<h2 id="youtube-comment-insights">YouTube Comment Insights</h2>
+
+<p>Since YouTube does not currently support generating direct permanent links to individual comments, 
+I have reproduced the relevant technical insight below in its entirety to ensure both accuracy and proper attribution.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="rouge-code"><pre>@moregirl4585
+Fact: on some architecture x*-3 is better expressed as x-(x&lt;&lt;2) and some better as -(x+x+x). Seems compilers don't work well for both case
+
+@SLiV9
+Do you know why for multiplying by 6, it uses an ADD for the second x2? Why not another LEA like for multiplying by 2?
+|
+|--&gt; @nurmr
+|    My suspicion is that address adder is "cheaper" to use than an ALU. 
+|    Especially with more complex code which might have other operations pipelined and running on an ALU. 
+|
+|--&gt; @HenryLoenwind 
+     lea is faster than mov+add, but not faster than a "naked" add. 
+     And even if the cpu cycles are the same in the end, 
+     add reg,reg is a 2-byte instruction (like the xor we had on day 1).
+
+@lpprogrammingllc 
+It's worth noting the shifts-and-adds version might still be faster on modern CPUs due to instruction pipelining. 
+Yes, the total work done is more than a single imul, but it can do each part in parallel, until the final add. 
+However, it also requires more code, and more "slots" in the decoding/execution pipeline. 
+Lots of modern machines have a 4-wide instruction frontend. 
+So with the imul, one of them handles the imul, and 3 keep going on any other calculations they can. 
+With the shifts-and-adds version, 3 get held up waiting on the shifts, to then issue the adds. 
+Only one gets to work on anything else.  
+The compiler assumes there will usually be other work to do, 
+so aims for maximum throughput rather than prioritizing finishing the mult as soon as possible.
+
+@lpprogrammingllc
+The CPU execution backend may well execute shifts and adds. However between your code in memory and that backend is the instruction decoder, 
+which uses the microcode to turn your single imul into whatever real micro instructions are required for the execution backend.
+
+If I understand the implicit part of your comment correctly, 
+you think there is no value in giving the instruction decoder the split-apart shift-and-add instructions because what the backend executes may be the same in either case. 
+This is incorrect. The cyclic latency (the number of cycles from beginning decode to commit) in the imul instruction is the number of cycles required for the instruction decoder 
+to issue microcode to the backend and for the backend to execute that microcode. Often the limiting factor is the frontend decode speed. 
+If you can decrease the number of cycles spent by the frontend doing the decode, you can decrease the total cycles required, 
+at the expense of more power use or less other work happening at the same time.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="references">References</h2>
+<p>[1] https://cs61.seas.harvard.edu/site/2018/Asm1/</p>
+
+      
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+      
+        
+          <li><a href="https://github.com/gapry" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/_gapry" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 <a href="">Gapry's Blog</a>. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
