@@ -186,7 +186,8 @@ Disassembly of section .text:
        3: c3                            retq
 </code></pre></div></div>
 
-<p>The compiler avoids the <code class="language-plaintext highlighter-rouge">imul</code> instruction because it prefer <code class="language-plaintext highlighter-rouge">shift / add / LEA</code> because:</p>
+<p>The compiler avoids the <code class="language-plaintext highlighter-rouge">imul</code> instruction in favor of the <code class="language-plaintext highlighter-rouge">shift</code>, <code class="language-plaintext highlighter-rouge">add</code> and <code class="language-plaintext highlighter-rouge">lea</code> instructions for the following reasons:</p>
+
 <ul>
   <li>Constant multiplication can often be expressed using free address generation</li>
   <li><code class="language-plaintext highlighter-rouge">lea</code> can compute <code class="language-plaintext highlighter-rouge">x + x * scale</code> without using ALU ports</li>
