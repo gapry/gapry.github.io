@@ -10,19 +10,19 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>Study Notes: Why xor eax, eax?  - Gapry’s Blog</title>
-<meta name="description" content="Study Notes: Why xor eax, eax?">
+<!-- begin _includes/seo.html --><title>Study Notes: Why xor eax, eax?, Advent of Compiler Optimisations 2025 - Gapry’s Blog</title>
+<meta name="description" content="Study Notes: Why xor eax, eax?, Advent of Compiler Optimisations 2025">
 
 
 
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Gapry's Blog">
-<meta property="og:title" content="Study Notes: Why xor eax, eax?">
+<meta property="og:title" content="Study Notes: Why xor eax, eax?, Advent of Compiler Optimisations 2025">
 <meta property="og:url" content="/2026/01/01/Advent-of-Compiler-Optimisations-Study-Notes-01.html">
 
 
-  <meta property="og:description" content="Study Notes: Why xor eax, eax?">
+  <meta property="og:description" content="Study Notes: Why xor eax, eax?, Advent of Compiler Optimisations 2025">
 
 
 
@@ -129,43 +129,52 @@
 
 
     <div class="initial-content">
-      <h2 id="study-notes-why-xor-eax-eax">Study Notes: Why xor eax, eax?</h2>
+      <h2 id="study-notes-why-xor-eax-eax-advent-of-compiler-optimisations-2025">Study Notes: Why xor eax, eax?, Advent of Compiler Optimisations 2025</h2>
 
 <p>These notes are based on the post <a href="https://xania.org/202512/01-xor-eax-eax"><strong>Why xor eax, eax?</strong></a>, which is Day 1 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
 
 <h4 id="development-environment">Development Environment</h4>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>lsb_release <span class="nt">-d</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lsb_release -d
 Description:	Ubuntu 24.04.3 LTS
 
-<span class="nv">$ </span>gcc <span class="nt">-v</span>
+$ gcc -v
 gcc version 13.3.0
 
-<span class="nv">$ </span>clang <span class="nt">-v</span>
+$ clang -v
 Ubuntu clang version 18.1.8
 
-<span class="nv">$ </span>llvm-objdump <span class="nt">-v</span>
+$ llvm-objdump -v
 Ubuntu LLVM version 18.1.8
 
-<span class="nv">$ </span>lldb <span class="nt">-v</span>
-lldb version 18.1.8</code></pre></figure>
+$ lldb -v
+lldb version 18.1.8
+
+$ nvim --version
+NVIM v0.11.5
+
+$ echo $SHELL
+/usr/bin/fish
+</code></pre></div></div>
 
 <h4 id="the-difference-between--o0--o1-and--o2">The difference between <code class="language-plaintext highlighter-rouge">-O0</code>, <code class="language-plaintext highlighter-rouge">-O1</code>, and <code class="language-plaintext highlighter-rouge">-O2</code></h4>
 
 <p>Basically, we know the compiler has the following stages. If we use the same code but choose different 
 optimization levels, the final assembly code will be different.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">                        <span class="o">[</span> FRONTEND <span class="o">]</span>         <span class="o">[</span> MIDDLE-END <span class="o">]</span>          <span class="o">[</span> BACKEND <span class="o">]</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                        [ FRONTEND ]         [ MIDDLE-END ]          [ BACKEND ]
                         .----------.         .------------.         .------------.
                         |  Lexer   |         |            |         |    Code    |
-Source Code <span class="o">(</span><span class="k">*</span>.c<span class="o">)</span> <span class="nt">---</span><span class="o">&gt;</span>  |    &amp;     |  <span class="nt">---</span><span class="o">&gt;</span>   |  Optimizer |  <span class="nt">---</span><span class="o">&gt;</span>   |  Generator | <span class="nt">---</span><span class="o">&gt;</span> <span class="o">[</span> Assembly <span class="o">(</span><span class="k">*</span>.s<span class="o">)</span> <span class="o">]</span>
-                        |  Parser  |         |            |         | <span class="o">(</span>e.g. x86<span class="o">)</span> |
-                        <span class="s1">'----------'</span>         <span class="s1">'------------'</span>         <span class="s1">'------------'</span>       </code></pre></figure>
+Source Code (*.c) ---&gt;  |    &amp;     |  ---&gt;   |  Optimizer |  ---&gt;   |  Generator | ---&gt; [ Assembly (*.s) ]
+                        |  Parser  |         |            |         | (e.g. x86) |
+                        '----------'         '------------'         '------------'       
+</code></pre></div></div>
 
 <p>For now, we use <code class="language-plaintext highlighter-rouge">main.c</code> as input (shown below), apply different optimization levels, 
 and use <code class="language-plaintext highlighter-rouge">llvm-objdump</code> to analyze the corresponding assembly code.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim main.c</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim main.c
+</code></pre></div></div>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
@@ -174,9 +183,10 @@ and use <code class="language-plaintext highlighter-rouge">llvm-objdump</code> t
 
 <h6 id="use--o0-as-optimization-level">Use <code class="language-plaintext highlighter-rouge">-O0</code> as optimization level</h6>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> gcc <span class="nt">-O0</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); gcc -O0 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">main.o: file format elf64-x86-64
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>main.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
@@ -184,54 +194,63 @@ Disassembly of section .text:
        0: f3 0f 1e fa                   endbr64
        4: 55                            pushq %rbp
        5: 48 89 e5                      movq  %rsp, %rbp
-       8: b8 00 00 00 00                movl  <span class="nv">$0x0</span>, %eax
+       8: b8 00 00 00 00                movl  $0x0, %eax
        d: 5d                            popq  %rbp
-       e: c3                            retq</code></pre></figure>
+       e: c3                            retq
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>size main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ size main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">text	   data	    bss	    dec	    hex	filename
- 103	      0	      0	    103	     67	main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>text	   data	    bss	    dec	    hex	filename
+ 103	      0	      0	    103	     67	main.o
+</code></pre></div></div>
 
 <p>As <code class="language-plaintext highlighter-rouge">-O0</code>, the compiler generates a stack frame, leading to unnecessary instruction overhead.</p>
 
 <h6 id="use--o1-as-optimization-level">Use <code class="language-plaintext highlighter-rouge">-O1</code> as optimization level</h6>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); gcc -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> gcc <span class="nt">-O1</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o</code></pre></figure>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">main.o: file format elf64-x86-64
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>main.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 &lt;main&gt;:
        0: f3 0f 1e fa                   endbr64
-       4: b8 00 00 00 00                movl  <span class="nv">$0x0</span>, %eax
-       9: c3                            retq</code></pre></figure>
+       4: b8 00 00 00 00                movl  $0x0, %eax
+       9: c3                            retq
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>size main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ size main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">text	   data	    bss	    dec	    hex	filename
-  90	      0	      0	     90	     5a	main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>text	   data	    bss	    dec	    hex	filename
+  90	      0	      0	     90	     5a	main.o
+</code></pre></div></div>
 
 <p>It reduces the output from six instructions to three by removing the stack frame setup.</p>
 
 <h6 id="use--o2-as-optimization-level">Use <code class="language-plaintext highlighter-rouge">-O2</code> as optimization level</h6>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); gcc -O2 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> gcc <span class="nt">-O2</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o</code></pre></figure>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">main.o: file format elf64-x86-64
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>main.o: file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 &lt;main&gt;:
        0: f3 0f 1e fa                   endbr64
        4: 31 c0                         xorl  %eax, %eax
-       6: c3                            retq</code></pre></figure>
+       6: c3                            retq
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>size main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ size main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">text	   data	    bss	    dec	    hex	filename
-  87	      0	      0	     87	     57	main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>text	   data	    bss	    dec	    hex	filename
+  87	      0	      0	     87	     57	main.o
+</code></pre></div></div>
 
 <p>As you can see, <code class="language-plaintext highlighter-rouge">-O2</code> and <code class="language-plaintext highlighter-rouge">-O1</code> both produce three instructions. 
 The only differences is that <code class="language-plaintext highlighter-rouge">-O2</code> changes from <code class="language-plaintext highlighter-rouge">movl</code> to <code class="language-plaintext highlighter-rouge">xorl</code>. 
@@ -240,10 +259,10 @@ making it smaller than the five bytes <code class="language-plaintext highlighte
 Hence, you can see the total <code class="language-plaintext highlighter-rouge">.text</code> size reduces from 90 bytes to 87 bytes.</p>
 
 <h4 id="how-about-we-change-gcc-to-clang">How about we change <code class="language-plaintext highlighter-rouge">gcc</code> to <code class="language-plaintext highlighter-rouge">clang</code>?</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> clang <span class="nt">-O1</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o</code></pre></figure>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> clang <span class="nt">-O1</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rm -f (path filter *.o); clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 
 main.o: file format elf64-x86-64
 
@@ -251,29 +270,33 @@ Disassembly of section .text:
 
 0000000000000000 &lt;main&gt;:
        0: 31 c0                         xorl  %eax, %eax
-       2: c3                            retq</code></pre></figure>
+       2: c3                            retq
+</code></pre></div></div>
 
 <p>You will find that the Clang’s <code class="language-plaintext highlighter-rouge">-O1</code> output already uses <code class="language-plaintext highlighter-rouge">xorl</code>, making it similar to GCC’s <code class="language-plaintext highlighter-rouge">-O2</code>.
 Additionally, it consists of only two instructions because Clang does not generate the <code class="language-plaintext highlighter-rouge">endbr64</code> instruction.</p>
 
 <h4 id="why-eax-not-rax-">Why <code class="language-plaintext highlighter-rouge">eax</code>, not <code class="language-plaintext highlighter-rouge">rax</code> ?</h4>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim get_val.c</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim get_val.c
+</code></pre></div></div>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">long</span> <span class="nf">get_val</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> clang <span class="nt">-O2</span> <span class="nt">-c</span> get_val.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att get_val.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -c get_val.c; llvm-objdump -d --x86-asm-syntax=att get_val.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">get_val.o:  file format elf64-x86-64
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>get_val.o:  file format elf64-x86-64
 
 Disassembly of section .text:
 
 0000000000000000 &lt;get_val&gt;:
        0: 31 c0                         xorl  %eax, %eax
-       2: c3                            retq</code></pre></figure>
+       2: c3                            retq
+</code></pre></div></div>
 
 <p>As we know, the x86-64 calling convention requires the return value to be stored in the 
 64-bit <code class="language-plaintext highlighter-rouge">rax</code> register. However, we see that the compiler uses the 32-bit <code class="language-plaintext highlighter-rouge">eax</code> register for the <code class="language-plaintext highlighter-rouge">xorl</code> instruction. 
@@ -282,56 +305,59 @@ into the upper 32 bits of the corresponding 64-bit register.</p>
 
 <p>Let’s see an example for verifying Zero-Extension with LLDB</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim main.c</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim main.c
+</code></pre></div></div>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.out<span class="p">;</span> clang <span class="nt">-g</span> <span class="nt">-O2</span> <span class="nt">-o</span> app.out main.c<span class="p">;</span> lldb app.out</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.out); clang -g -O2 -o app.out main.c; lldb app.out
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">(</span>lldb<span class="o">)</span> target create <span class="s2">"app.out"</span>
-Current executable <span class="nb">set </span>to <span class="s1">'/home/gapry/Workspaces/test/app.out'</span> <span class="o">(</span>x86_64<span class="o">)</span><span class="nb">.</span>
-<span class="o">(</span>lldb<span class="o">)</span> breakpoint <span class="nb">set</span> <span class="nt">-n</span> main
-Breakpoint 1: where <span class="o">=</span> app.out<span class="sb">`</span>main at main.c:2:3, address <span class="o">=</span> 0x0000000000001130
-<span class="o">(</span>lldb<span class="o">)</span> r
-Process 409020 launched: <span class="s1">'/home/gapry/Workspaces/test/app.out'</span> <span class="o">(</span>x86_64<span class="o">)</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(lldb) target create "app.out"
+Current executable set to '/home/gapry/Workspaces/test/app.out' (x86_64).
+(lldb) breakpoint set -n main
+Breakpoint 1: where = app.out`main at main.c:2:3, address = 0x0000000000001130
+(lldb) r
+Process 409020 launched: '/home/gapry/Workspaces/test/app.out' (x86_64)
 Process 409020 stopped
-<span class="k">*</span> thread <span class="c">#1, name = 'app.out', stop reason = breakpoint 1.1</span>
-    frame <span class="c">#0: 0x0000555555555130 app.out`main at main.c:2:3</span>
-   1   	int main<span class="o">()</span> <span class="o">{</span>
--&gt; 2   	  <span class="k">return </span>0<span class="p">;</span>
-   3   	<span class="o">}</span>
-<span class="o">(</span>lldb<span class="o">)</span> register write rax 0xffffffffffffffff
-<span class="o">(</span>lldb<span class="o">)</span> register <span class="nb">read </span>rax
-     rax <span class="o">=</span> 0xffffffffffffffff
-<span class="o">(</span>lldb<span class="o">)</span> disassemble <span class="nt">--pc</span>
-app.out<span class="sb">`</span>main:
+* thread #1, name = 'app.out', stop reason = breakpoint 1.1
+    frame #0: 0x0000555555555130 app.out`main at main.c:2:3
+   1   	int main() {
+-&gt; 2   	  return 0;
+   3   	}
+(lldb) register write rax 0xffffffffffffffff
+(lldb) register read rax
+     rax = 0xffffffffffffffff
+(lldb) disassemble --pc
+app.out`main:
 -&gt;  0x555555555130 &lt;+0&gt;: xorl   %eax, %eax
     0x555555555132 &lt;+2&gt;: retq
     0x555555555133:      addb   %dh, %bl
-<span class="o">(</span>lldb<span class="o">)</span> thread step-inst
+(lldb) thread step-inst
 Process 409020 stopped
-<span class="k">*</span> thread <span class="c">#1, name = 'app.out', stop reason = instruction step into</span>
-    frame <span class="c">#0: 0x0000555555555132 app.out`main at main.c:2:3</span>
-   1   	int main<span class="o">()</span> <span class="o">{</span>
--&gt; 2   	  <span class="k">return </span>0<span class="p">;</span>
-   3   	<span class="o">}</span>
-<span class="o">(</span>lldb<span class="o">)</span> disassemble <span class="nt">--pc</span>
-app.out<span class="sb">`</span>main:
+* thread #1, name = 'app.out', stop reason = instruction step into
+    frame #0: 0x0000555555555132 app.out`main at main.c:2:3
+   1   	int main() {
+-&gt; 2   	  return 0;
+   3   	}
+(lldb) disassemble --pc
+app.out`main:
 -&gt;  0x555555555132 &lt;+2&gt;: retq
     0x555555555133:      addb   %dh, %bl
-<span class="o">(</span>lldb<span class="o">)</span> register <span class="nb">read </span>rax
-     rax <span class="o">=</span> 0x0000000000000000
-<span class="o">(</span>lldb<span class="o">)</span></code></pre></figure>
+(lldb) register read rax
+     rax = 0x0000000000000000
+(lldb)
+</code></pre></div></div>
 
 <p>The LLDB output confirms that even though <code class="language-plaintext highlighter-rouge">xorl</code> only targets the lower 32 bits <code class="language-plaintext highlighter-rouge">%eax</code> register,
 the hardware automatically cleared the entire 64-bit <code class="language-plaintext highlighter-rouge">%rax</code> register.</p>
 
 <h4 id="callercallee-arguments">Caller/Callee Arguments</h4>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim main.c</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim main.c
+</code></pre></div></div>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">extern</span> <span class="kt">void</span> <span class="nf">g</span><span class="p">(</span><span class="kt">long</span> <span class="n">arg1</span><span class="p">,</span> 
               <span class="kt">long</span> <span class="n">arg2</span><span class="p">,</span> 
@@ -345,9 +371,10 @@ the hardware automatically cleared the entire 64-bit <code class="language-plain
 <span class="p">}</span>
 </code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> clang <span class="nt">-O2</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--disassemble-symbols</span><span class="o">=</span>f <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o</code></pre></figure>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -c main.c; llvm-objdump -d --disassemble-symbols=f --x86-asm-syntax=att main.o
+</code></pre></div></div>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">main.o:	file format elf64-x86-64
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>main.o:	file format elf64-x86-64
 
 Disassembly of section .text:
 
@@ -358,7 +385,8 @@ Disassembly of section .text:
        6: 31 c9                        	xorl	%ecx, %ecx
        8: 45 31 c0                     	xorl	%r8d, %r8d
        b: 45 31 c9                     	xorl	%r9d, %r9d
-       e: e9 00 00 00 00               	jmp	0x13 &lt;f+0x13&gt;</code></pre></figure>
+       e: e9 00 00 00 00               	jmp	0x13 &lt;f+0x13&gt;
+</code></pre></div></div>
 
 <p>According to the x86-64 System V ABI, the first six integer or pointer arguments are passed in
 specific registers. To pass <code class="language-plaintext highlighter-rouge">0</code> to all of them, the compiler again uses the <code class="language-plaintext highlighter-rouge">xorl</code> optimization to
