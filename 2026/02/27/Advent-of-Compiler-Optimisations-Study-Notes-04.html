@@ -215,7 +215,7 @@ Disassembly of section .text:
 <p>The compiler avoids the <code class="language-plaintext highlighter-rouge">imul</code> instruction because it prefer <code class="language-plaintext highlighter-rouge">shift / add / LEA</code> because:</p>
 <ul>
   <li>Constant multiplication can often be expressed using free address generation</li>
-  <li><code class="language-plaintext highlighter-rouge">lea</code> can compute <code class="language-plaintext highlighter-rouge">x + </code>x * scale` without using ALU ports</li>
+  <li><code class="language-plaintext highlighter-rouge">lea</code> can compute <code class="language-plaintext highlighter-rouge">x + x * scale</code> without using ALU ports</li>
   <li>It may reduce dependency chains</li>
 </ul>
 
@@ -545,7 +545,7 @@ Disassembly of section .text:
 
 <p>According the x86-64 calling convention, the result must be returned in %eax. 
 The compiler cannot simply generate a single <code class="language-plaintext highlighter-rouge">shll $0x4, %edi</code> instruction.
-It need to generate an extra instruciton to move the input value from <code class="language-plaintext highlighter-rouge">%edi</code> to <code class="language-plaintext highlighter-rouge">%eax</code> before the shift operation.</p>
+It need to generate an extra instruction to move the input value from <code class="language-plaintext highlighter-rouge">%edi</code> to <code class="language-plaintext highlighter-rouge">%eax</code> before the shift operation.</p>
 
 <h2 id="case-10-x--17">Case 10: <code class="language-plaintext highlighter-rouge">x * 17</code></h2>
 
