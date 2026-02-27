@@ -161,13 +161,10 @@ Ubuntu LLVM version 18.1.8
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim add.c</code></pre></figure>
 
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
 <span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div></div>
+</code></pre></div></div>
 
 <h2 id="unoptimized-analysis">Unoptimized Analysis</h2>
 
@@ -227,46 +224,7 @@ and the other employing a single <code class="language-plaintext highlighter-rou
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim add.s</code></pre></figure>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-</pre></td><td class="rouge-code"><pre>.section .note.GNU-stack, "", @progbits
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.section .note.GNU-stack, "", @progbits
 
 .section .rodata
   fmt: .string "Result: %d\n"
@@ -305,7 +263,7 @@ main:
   movl    $0, %eax
   popq    %rbp
   retq
-</pre></td></tr></tbody></table></code></pre></div></div>
+</code></pre></div></div>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="o">(</span>path filter <span class="k">*</span>.out<span class="o">)</span><span class="p">;</span> clang <span class="nt">-o</span> add.out add.s<span class="p">;</span> ./add.out
 Result: 3

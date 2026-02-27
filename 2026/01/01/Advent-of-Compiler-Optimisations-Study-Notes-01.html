@@ -167,13 +167,10 @@ and use <code class="language-plaintext highlighter-rouge">llvm-objdump</code> t
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim main.c</code></pre></figure>
 
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div></div>
+</code></pre></div></div>
 
 <h6 id="use--o0-as-optimization-level">Use <code class="language-plaintext highlighter-rouge">-O0</code> as optimization level</h6>
 
@@ -263,13 +260,10 @@ Additionally, it consists of only two instructions because Clang does not genera
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim get_val.c</code></pre></figure>
 
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-</pre></td><td class="rouge-code"><pre><span class="kt">long</span> <span class="nf">get_val</span><span class="p">()</span> <span class="p">{</span>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">long</span> <span class="nf">get_val</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div></div>
+</code></pre></div></div>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> clang <span class="nt">-O2</span> <span class="nt">-c</span> get_val.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att get_val.o</code></pre></figure>
 
@@ -290,13 +284,10 @@ into the upper 32 bits of the corresponding 64-bit register.</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim main.c</code></pre></figure>
 
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div></div>
+</code></pre></div></div>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.out<span class="p">;</span> clang <span class="nt">-g</span> <span class="nt">-O2</span> <span class="nt">-o</span> app.out main.c<span class="p">;</span> lldb app.out</code></pre></figure>
 
@@ -342,17 +333,7 @@ the hardware automatically cleared the entire 64-bit <code class="language-plain
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nvim main.c</code></pre></figure>
 
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-</pre></td><td class="rouge-code"><pre><span class="k">extern</span> <span class="kt">void</span> <span class="nf">g</span><span class="p">(</span><span class="kt">long</span> <span class="n">arg1</span><span class="p">,</span> 
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">extern</span> <span class="kt">void</span> <span class="nf">g</span><span class="p">(</span><span class="kt">long</span> <span class="n">arg1</span><span class="p">,</span> 
               <span class="kt">long</span> <span class="n">arg2</span><span class="p">,</span> 
               <span class="kt">long</span> <span class="n">arg3</span><span class="p">,</span> 
               <span class="kt">long</span> <span class="n">arg4</span><span class="p">,</span> 
@@ -362,7 +343,7 @@ the hardware automatically cleared the entire 64-bit <code class="language-plain
 <span class="kt">void</span> <span class="nf">f</span><span class="p">()</span> <span class="p">{</span>
   <span class="n">g</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 <span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div></div>
+</code></pre></div></div>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">rm</span> <span class="nt">-f</span> <span class="k">*</span>.o<span class="p">;</span> clang <span class="nt">-O2</span> <span class="nt">-c</span> main.c<span class="p">;</span> llvm-objdump <span class="nt">-d</span> <span class="nt">--disassemble-symbols</span><span class="o">=</span>f <span class="nt">--x86-asm-syntax</span><span class="o">=</span>att main.o</code></pre></figure>
 
