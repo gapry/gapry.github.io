@@ -67,7 +67,7 @@ Disassembly of section .text:
        3: c3                            retq
 ```
 
-The compiler avoids the `imul` instruction in favor of the `shift`, `add` and `lea` instructions for the following reasons:
+The compiler avoids the `imul` instruction in favor of the `shift`, `add`, and `lea` instructions for the following reasons:
 
 - Constant multiplication can often be expressed using free address generation
 - `lea` can compute `x + x * scale` without using ALU ports
