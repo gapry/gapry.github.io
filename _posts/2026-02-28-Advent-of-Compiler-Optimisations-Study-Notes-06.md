@@ -251,4 +251,4 @@ lsr <Wd>, <Wn>, #imm ; Logical Shift Right, that is w0 = w0 >> 9.
 ```
 
 ## References
-- https://developer.arm.com/documentation/ddi0601/2025-12/AArch64-Registers/NZCV--Condition-Flags
+- https://developer.arm.com/documentation/ddi0601/latest/AArch64-Registers/NZCV--Condition-Flags
