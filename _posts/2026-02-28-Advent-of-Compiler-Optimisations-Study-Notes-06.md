@@ -105,7 +105,7 @@ $ 0 -1
 To resolve this problem, the compiler adds `2^n - 1` to the negative number.
 In this case, n = 9, hence it is `2^9 - 1 = 512 - 1 = 511 = 0x1FF`
 
-Why `2^n - 1` ? Let's consdier `n = 9`
+Why `2^n - 1` ? Let's consider `n = 9`
 
 In binary, `2^9 - 1` creates the exactly 9 ones:
 
@@ -116,7 +116,7 @@ In binary, `2^9 - 1` creates the exactly 9 ones:
         0 1 1 1 1 1 1 1 1 1
 ```
 
-It can help us to filp the bit of `x`. For example, `x = -1`
+It can help us to flip the bit of `x`. For example, `x = -1`
 ```
 Position | 32 (Sign Bit)           10                 1
          |  v                       v                 v
@@ -129,11 +129,11 @@ Position | 32 (Sign Bit)           10                 1
 
 Hence, the compiler does `(-1 + 511) / 512 = 510 / 512 = 510 >> 9 = 0`, we get the correct result.
 
-In summary, the compiler use the `cmovens` and `test` instructions to detect whether `x` is positive.
+In summary, the compiler use the `cmovns` and `test` instructions to detect whether `x` is positive.
 If `x` is a positive number, shift it. Otherwise, use `2^n - 1` to create an `n` one mask. 
 Then we can use the shift operator to achieve the same result as we use the division operator.
 
-## x86 Unsign Integer Division 
+## x86 Unsigned Integer Division 
 ```
 unsigned div(unsigned x) {
   return x / 512;
@@ -157,7 +157,7 @@ Disassembly of section .text:
 
 Instruction: 
 ```
-shrl <imm>, <Rd> ; shr := Shift Right Logical, that is <Rd> = <Rd> << <imm>
+shrl <imm>, <Rd> ; shr := Shift Right Logical, that is <Rd> = <Rd> >> <imm>
 ```
 
 This case is easier than previous one. It only requires knowing what `shr` is.
@@ -206,7 +206,7 @@ The reason is the same as in the previous x86 case, we need to know why we need 
 Instructions:
 ```
 - add <Wd>, <Wn>, #imm          ; w8 = w0 + 0x1ff
-- cmp <Wn>, #imm                ; Compares w8 with #0x0, and update the processor flags NZCV
+- cmp <Wn>, #imm                ; Compares w0 with #0x0, and update the processor flags NZCV
 - csel <Wd>, <Wn>, <Wm>, <cond> ; Conditional Select. 
                                 ; If the condition lt (Less Than) is true, it selects w8; 
                                 ; otherwise, it selects w0.
