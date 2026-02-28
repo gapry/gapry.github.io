@@ -219,7 +219,7 @@ $ 0 -1
 <p>To resolve this problem, the compiler adds <code class="language-plaintext highlighter-rouge">2^n - 1</code> to the negative number.
 In this case, n = 9, hence it is <code class="language-plaintext highlighter-rouge">2^9 - 1 = 512 - 1 = 511 = 0x1FF</code></p>
 
-<p>Why <code class="language-plaintext highlighter-rouge">2^n - 1</code> ? Let’s consdier <code class="language-plaintext highlighter-rouge">n = 9</code></p>
+<p>Why <code class="language-plaintext highlighter-rouge">2^n - 1</code> ? Let’s consider <code class="language-plaintext highlighter-rouge">n = 9</code></p>
 
 <p>In binary, <code class="language-plaintext highlighter-rouge">2^9 - 1</code> creates the exactly 9 ones:</p>
 
@@ -229,7 +229,7 @@ In this case, n = 9, hence it is <code class="language-plaintext highlighter-rou
         0 1 1 1 1 1 1 1 1 1
 </code></pre></div></div>
 
-<p>It can help us to filp the bit of <code class="language-plaintext highlighter-rouge">x</code>. For example, <code class="language-plaintext highlighter-rouge">x = -1</code></p>
+<p>It can help us to flip the bit of <code class="language-plaintext highlighter-rouge">x</code>. For example, <code class="language-plaintext highlighter-rouge">x = -1</code></p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Position | 32 (Sign Bit)           10                 1
          |  v                       v                 v
    Carry |  1 1 1 1 1 ... 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 
@@ -241,11 +241,11 @@ In this case, n = 9, hence it is <code class="language-plaintext highlighter-rou
 
 <p>Hence, the compiler does <code class="language-plaintext highlighter-rouge">(-1 + 511) / 512 = 510 / 512 = 510 &gt;&gt; 9 = 0</code>, we get the correct result.</p>
 
-<p>In summary, the compiler use the <code class="language-plaintext highlighter-rouge">cmovens</code> and <code class="language-plaintext highlighter-rouge">test</code> instructions to detect whether <code class="language-plaintext highlighter-rouge">x</code> is positive.
+<p>In summary, the compiler use the <code class="language-plaintext highlighter-rouge">cmovns</code> and <code class="language-plaintext highlighter-rouge">test</code> instructions to detect whether <code class="language-plaintext highlighter-rouge">x</code> is positive.
 If <code class="language-plaintext highlighter-rouge">x</code> is a positive number, shift it. Otherwise, use <code class="language-plaintext highlighter-rouge">2^n - 1</code> to create an <code class="language-plaintext highlighter-rouge">n</code> one mask. 
 Then we can use the shift operator to achieve the same result as we use the division operator.</p>
 
-<h2 id="x86-unsign-integer-division">x86 Unsign Integer Division</h2>
+<h2 id="x86-unsigned-integer-division">x86 Unsigned Integer Division</h2>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>unsigned div(unsigned x) {
   return x / 512;
 }
@@ -265,7 +265,7 @@ Disassembly of section .text:
 </code></pre></div></div>
 
 <p>Instruction:</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>shrl &lt;imm&gt;, &lt;Rd&gt; ; shr := Shift Right Logical, that is &lt;Rd&gt; = &lt;Rd&gt; &lt;&lt; &lt;imm&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>shrl &lt;imm&gt;, &lt;Rd&gt; ; shr := Shift Right Logical, that is &lt;Rd&gt; = &lt;Rd&gt; &gt;&gt; &lt;imm&gt;
 </code></pre></div></div>
 
 <p>This case is easier than previous one. It only requires knowing what <code class="language-plaintext highlighter-rouge">shr</code> is.</p>
@@ -339,7 +339,7 @@ Disassembly of section .text:
 
 <p>Instructions:</p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- add &lt;Wd&gt;, &lt;Wn&gt;, #imm          ; w8 = w0 + 0x1ff
-- cmp &lt;Wn&gt;, #imm                ; Compares w8 with #0x0, and update the processor flags NZCV
+- cmp &lt;Wn&gt;, #imm                ; Compares w0 with #0x0, and update the processor flags NZCV
 - csel &lt;Wd&gt;, &lt;Wn&gt;, &lt;Wm&gt;, &lt;cond&gt; ; Conditional Select. 
                                 ; If the condition lt (Less Than) is true, it selects w8; 
                                 ; otherwise, it selects w0.
@@ -410,7 +410,7 @@ Disassembly of section .text:
 
 <h2 id="references">References</h2>
 <ul>
-  <li>https://developer.arm.com/documentation/ddi0601/2025-12/AArch64-Registers/NZCV–Condition-Flags</li>
+  <li>https://developer.arm.com/documentation/ddi0601/latest/AArch64-Registers/NZCV–Condition-Flags</li>
 </ul>
 
       
