@@ -1,4 +1,278 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-02-27T16:45:43+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025</title><link href="/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html" rel="alternate" type="text/html" title="Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025" /><published>2026-02-27T00:00:00+00:00</published><updated>2026-02-27T00:00:00+00:00</updated><id>/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04</id><content type="html" xml:base="/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html"><![CDATA[<h2 id="study-notes-multiplying-with-a-constant-advent-of-compiler-optimisations-2025">Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-02-28T05:26:55+00:00</updated><id>/feed.xml</id><title type="html">Gapry’s Blog</title><subtitle></subtitle><entry><title type="html">Study Notes: ARM’s barrel shifter tricks, Advent of Compiler Optimisations 2025</title><link href="/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-05.html" rel="alternate" type="text/html" title="Study Notes: ARM’s barrel shifter tricks, Advent of Compiler Optimisations 2025" /><published>2026-02-28T00:00:00+00:00</published><updated>2026-02-28T00:00:00+00:00</updated><id>/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-05</id><content type="html" xml:base="/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-05.html"><![CDATA[<h2 id="study-notes-arms-barrel-shifter-tricks-advent-of-compiler-optimisations-2025">Study Notes: ARM’s barrel shifter tricks, Advent of Compiler Optimisations 2025</h2>
+
+<p>These notes are based on the post <a href="https://xania.org/202512/05-barrel-shifting-with-arm"><strong>ARM’s barrel shifter tricks</strong></a> and the YouTube video <a href="https://www.youtube.com/watch?v=TZubUyr2UEY&amp;list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&amp;index=6"><strong>[AoCO 5/25] Multiplying with a Constant</strong></a> which are Day 5 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
+
+<p>My notes focus on reproducing and verifying <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>’s teaching within a local development environment using <code class="language-plaintext highlighter-rouge">LLVM</code> toolchain on <code class="language-plaintext highlighter-rouge">Ubuntu</code>.</p>
+
+<p>Selected technical insights from the YouTube comment section are reproduced at the end of these notes to provide additional context.</p>
+
+<p>Written by me and assisted by AI, proofread by me and assisted by AI.</p>
+
+<h4 id="development-environment">Development Environment</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lsb_release -d
+Description:	Ubuntu 24.04.3 LTS
+
+$ clang -v
+Ubuntu clang version 18.1.8
+
+$ llvm-objdump -v
+Ubuntu LLVM version 18.1.8
+
+$ nvim --version
+NVIM v0.11.5
+
+$ echo $SHELL
+/usr/bin/fish
+</code></pre></div></div>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Following the Day 05 technical materials, I performed sequential tests for constant</p>
+
+<p>multiplication ranging from x multiplied by two to x multiplied by twenty on the AArch64 target.</p>
+
+<p>After evaluating the assembly output,</p>
+
+<p>I identified six distinct compiler optimization strategies that I would like to share with you.</p>
+
+<h2 id="case-01--x--2">Case 01 : <code class="language-plaintext highlighter-rouge">x * 2</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim mul.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int mul(int x) {
+  return x * 2;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mul.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 531f7800      lsl     w0, w0, #1
+       4: d65f03c0      ret
+</code></pre></div></div>
+
+<p>ARM Instruction: <code class="language-plaintext highlighter-rouge">lsl &lt;Rd&gt;, &lt;Rn&gt;, #&lt;shift&gt;</code></p>
+
+<p>The compiler utilizes a Logical Shift Left (<code class="language-plaintext highlighter-rouge">lsl</code>) to perform multiplication by powers of two. 
+Here, w0 is the destination (<code class="language-plaintext highlighter-rouge">Rd</code>), the original <code class="language-plaintext highlighter-rouge">w0</code> is the source (<code class="language-plaintext highlighter-rouge">Rn</code>), and <code class="language-plaintext highlighter-rouge">#1</code> is the immediate shift value. 
+Shifting a register left by 1 bit is equivalent to multiplying by 2.</p>
+
+<h2 id="case-02-x--3">Case 02: <code class="language-plaintext highlighter-rouge">x * 3</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim mul.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int mul(int x) {
+  return x * 3;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mul.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 0b000400      add     w0, w0, w0, lsl #1
+       4: d65f03c0      ret
+</code></pre></div></div>
+
+<p>ARM Instruction: <code class="language-plaintext highlighter-rouge">add &lt;Rd&gt;, &lt;Rn&gt;, &lt;Rm&gt;, lsl #&lt;shift&gt;</code></p>
+
+<p>AArch64 supports shifted-register operands within arithmetic instructions. 
+This add instruction performs a left shift of 1 bit on the second source register (<code class="language-plaintext highlighter-rouge">Rm</code>) before addition. 
+The operation represents the formula <code class="language-plaintext highlighter-rouge">w0 = w0 + (w0 &lt;&lt; 1)</code>, which computes <code class="language-plaintext highlighter-rouge">x = x + x * 2</code>.</p>
+
+<h2 id="case-03--x--6">Case 03 : <code class="language-plaintext highlighter-rouge">x * 6</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim mul.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int mul(int x) {
+  return x * 6;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mul.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 0b000408      add     w8, w0, w0, lsl #1
+       4: 531f7900      lsl     w0, w8, #1
+       8: d65f03c0      ret
+</code></pre></div></div>
+
+<p>ARM Instructions:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">add &lt;Rd&gt;, &lt;Rn&gt;, &lt;Rm&gt;, lsl #&lt;shift&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">lsl &lt;Rd&gt;, &lt;Rn&gt;, #&lt;shift&gt;</code></li>
+</ul>
+
+<p>The multiplication of 6x is decomposed into two discrete stages. 
+First, the compiler calculates <code class="language-plaintext highlighter-rouge">w8 = w0 + (w0 &lt;&lt; 1) = w0 + 2 * w0 = 3 * w0</code>. 
+Second, it calculates <code class="language-plaintext highlighter-rouge">w0 = (w8 &lt;&lt; 1) = 2 * w8 = 2 * (3 * w0) = 6 * w0</code></p>
+
+<h2 id="case-04--x--7">Case 04 : <code class="language-plaintext highlighter-rouge">x * 7</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim mul.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int mul(int x) {
+  return x * 7;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mul.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 531d7008      lsl     w8, w0, #3
+       4: 4b000100      sub     w0, w8, w0
+       8: d65f03c0      ret
+</code></pre></div></div>
+
+<p>ARM Instructions:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">lsl &lt;Rd&gt;, &lt;Rn&gt;, #&lt;shift&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">sub &lt;Rd&gt;, &lt;Rn&gt;, &lt;Rm&gt;</code></li>
+</ul>
+
+<p>The compiler implements a shift-and-subtract strategy for constants near powers of two. 
+To compute <code class="language-plaintext highlighter-rouge">7x</code>, it first executes <code class="language-plaintext highlighter-rouge">w8 = w0 &lt;&lt; 3 = 8 * w0</code> 
+It then performs <code class="language-plaintext highlighter-rouge">w0 = w8 - w0 = 8 * w0 - w0 = 7 * w0</code>.</p>
+
+<h2 id="case-05--x--11">Case 05 : <code class="language-plaintext highlighter-rouge">x * 11</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim mul.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int mul(int x) {
+  return x * 11;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mul.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 52800168      mov     w8, #0xb                // =11
+       4: 1b087c00      mul     w0, w0, w8
+       8: d65f03c0      ret
+</code></pre></div></div>
+
+<p>ARM Instructions</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">mov &lt;Rd&gt;, &lt;Imm&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">mul &lt;Rd&gt;, &lt;Rn&gt;, &lt;Rm&gt;</code></li>
+</ul>
+
+<p>The compiler defaults to the <code class="language-plaintext highlighter-rouge">mul</code> instruction because decomposing the constant <code class="language-plaintext highlighter-rouge">11</code> cannot be achieved in only two instructions.</p>
+
+<p>If the compiler were to adopt a manual shift-and-subtract strategy, 
+the code generator would need to output three instructions:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add w8, w0, w0, lsl 1    // w8 = x + 2x = 3x
+lsl w8, w8, #2           // w8 = w8 &lt;&lt; 2 = 3x &lt;&lt; 2 = 3x * 4 = 12x
+sub w0, w8, w0           // w0 = 12x - x = 11x
+</code></pre></div></div>
+<p>Obviously, this requires 3 instructions. By using mov followed by mul, 
+the compiler achieves the same result in only 2 instructions.</p>
+
+<h2 id="case-06--x--14">Case 06 : <code class="language-plaintext highlighter-rouge">x * 14</code></h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim mul.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int mul(int x) {
+  return x * 14;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mul.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;mul&gt;:
+       0: 531c6c08      lsl     w8, w0, #4
+       4: 4b000500      sub     w0, w8, w0, lsl #1
+       8: d65f03c0      ret
+</code></pre></div></div>
+
+<p>Instruction Format:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">lsl &lt;Rd&gt;, &lt;Rn&gt;, #&lt;shift&gt;</code></li>
+  <li><code class="language-plaintext highlighter-rouge">sub &lt;Rd&gt;, &lt;Rn&gt;, &lt;Rm&gt;, lsl #&lt;shift&gt;</code></li>
+</ul>
+
+<p>The computation of 14x demonstrates the flexibility of the sub instruction with shifted operands. 
+The compiler first calculates <code class="language-plaintext highlighter-rouge">w8 = w0 &lt;&lt; 4 = 16 * w0</code>. 
+Subsequently, it performs <code class="language-plaintext highlighter-rouge">w0 = w8 - (w0 &lt;&lt; 1) = w8 - w0 * 2 = 16 * w0 - 2 * w0 = 14 * w0</code>.</p>
+
+<h2 id="youtube-comment-insights">YouTube Comment Insights</h2>
+
+<p>Since YouTube does not currently support generating direct permanent links to individual comments, 
+I have reproduced the relevant technical insight below in its entirety to ensure both accuracy and proper attribution.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@kruador 
+@ciberman Yes, it means 'ARMv8'. That's not quite right because ARM Ltd enhanced the 32-bit instruction set (which they now call A32) 
+as well as adding the 64-bit instruction set (A64) in version 8.
+
+They also refer to 'AArch32' and 'AArch64' for extra confusion. I think 'AArch32' means 'the architectural state of a 32-bit ARM processor' 
+because you can use the alternative "Thumb" instruction set (which ARM Ltd renamed to T32 with ARMv8, in their documentation at least) instead of A32. 
+The embedded ARM Cortex-M only support T32, not A32.
+
+There is no equivalent of Thumb for AArch64 (no 'T64'), at least not as of yet (probably not ever), so 'AArch64' and 'A64' are virtually interchangeable. 
+And most people just say 'arm64' because 'AArch64' is unpronounceable while 'A64' is too ambiguous.
+
+@tlhIngan
+ARMv8 was designed to be more streamlined for modern superscalar architectures so it jettisoned a lot of ARM stuff that was responsible 
+for causing pipeline stalls and dependencies in favor of simpler instructions that can run faster. 
+When AArch64 was being introduced I remember seeing the ARM presentations on why the instruction set dumped a lot of it. 
+It's why an ARMv8 core only beats an ARMv7 core by about 10% in AArch32 mode but running the same code in AArch64 mode you can achieve a 50+% speedup. 
+Losing RSB for a two instruction LSB/SUB combination was deemed far superior in simplifying ALU operations.
+
+@kruador
+I think RSB was only really useful for this kind of operation. If you're not doing a shift on one of the operands, you can just swap which register is which. 
+But the 32-bit ARM architecture only supports the shift on operand 2, 
+so you have to have an instruction that does say Rdest := operand2 - Rn instead of Rdest := Rm - operand2.
+
+ARM1 didn't even have a multiply instruction. Adds, shifts and subtracts were the only options out there. 
+No room for a multiplier in only 25,000 transistors! So RSB was really helpful there. However, these days there an abundance of transistors available: 
+even the lowly ARM Cortex-M0 (a 32-bit ARMv6 architecture core that only supports the Thumb instruction set, and not all of that) can be configured with a single-cycle multiplier.
+
+The main issue wasn't simplifying the ALU operations, I don't think, but simply releasing bits to be able to encode more different operations and more registers. 
+AArch64 needs three bits more per instruction for register mapping - one for the destination register and one for each source - because it has twice as many registers as AArch32 (32 vs 16).
+</code></pre></div></div>
+
+<h2 id="references">References</h2>
+<ol>
+  <li>https://developer.arm.com/documentation/dui0473/m/overview-of-the-arm-architecture/access-to-the-inline-barrel-shifter</li>
+  <li>https://www.davespace.co.uk/arm/introduction-to-arm/barrel-shifter.html</li>
+  <li>https://www.d.umn.edu/~gshute/logic/barrel-shifter.html</li>
+  <li>https://community.element14.com/technologies/fpga-group/b/blog/posts/systemverilog-study-notes-barrel-shifter-rtl-combinational-circuit</li>
+</ol>]]></content><author><name></name></author><category term="compiler" /><summary type="html"><![CDATA[Study Notes: ARM’s barrel shifter tricks, Advent of Compiler Optimisations 2025]]></summary></entry><entry><title type="html">Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025</title><link href="/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html" rel="alternate" type="text/html" title="Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025" /><published>2026-02-27T00:00:00+00:00</published><updated>2026-02-27T00:00:00+00:00</updated><id>/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04</id><content type="html" xml:base="/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html"><![CDATA[<h2 id="study-notes-multiplying-with-a-constant-advent-of-compiler-optimisations-2025">Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025</h2>
 
 <p>These notes are based on the post <a href="https://xania.org/202512/04-multiplying-integers"><strong>Multiplying with a constant</strong></a> and the YouTube video <a href="https://www.youtube.com/watch?v=1X88od0miHs&amp;list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&amp;index=5"><strong>[AoCO 4/25] Multiplying with a Constant</strong></a> which are Day 4 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
 

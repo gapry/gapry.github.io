@@ -22,4 +22,10 @@ var store = [{
         "tags": ["compiler"],
         "url": "/2026/02/27/Advent-of-Compiler-Optimisations-Study-Notes-04.html",
         "teaser": null
+      },{
+        "title": "Study Notes: ARM's barrel shifter tricks, Advent of Compiler Optimisations 2025",
+        "excerpt":"Study Notes: ARM’s barrel shifter tricks, Advent of Compiler Optimisations 2025 These notes are based on the post ARM’s barrel shifter tricks and the YouTube video [AoCO 5/25] Multiplying with a Constant which are Day 5 of the Advent of Compiler Optimisations 2025 Series by Matt Godbolt. My notes focus...","categories": [],
+        "tags": ["compiler"],
+        "url": "/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-05.html",
+        "teaser": null
       }]
