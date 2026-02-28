@@ -204,7 +204,7 @@ Disassembly of section .text:
        8: d65f03c0      ret
 ```
 
-ARM Instructions
+ARM Instructions:
 - `mov <Rd>, <Imm>`
 - `mul <Rd>, <Rn>, <Rm>`
 
@@ -247,7 +247,7 @@ Disassembly of section .text:
        8: d65f03c0      ret
 ```
 
-Instruction Format: 
+ARM Instructions:
 - `lsl <Rd>, <Rn>, #<shift>`
 - `sub <Rd>, <Rn>, <Rm>, lsl #<shift>`
 
