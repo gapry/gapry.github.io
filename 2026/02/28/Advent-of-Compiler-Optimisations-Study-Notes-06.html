@@ -1,0 +1,465 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.26.2 by Michael Rose
+  Copyright 2013-2024 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Study Notes: Division, Advent of Compiler Optimisations 2025 - Gapry’s Blog</title>
+<meta name="description" content="Study Notes: Division, Advent of Compiler Optimisations 2025">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Gapry's Blog">
+<meta property="og:title" content="Study Notes: Division, Advent of Compiler Optimisations 2025">
+<meta property="og:url" content="/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-06.html">
+
+
+  <meta property="og:description" content="Study Notes: Division, Advent of Compiler Optimisations 2025">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2026-02-28T00:00:00+00:00">
+
+
+
+
+
+
+<link rel="canonical" href="/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-06.html">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Gapry's Blog Feed">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript">
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+  
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@latest/css/all.min.css"></noscript>
+
+
+
+    
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4DG3HSBT1T"></script>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  
+  gtag('js', new Date());
+  gtag('config', 'G-4DG3HSBT1T', { 'anonymize_ip': true });
+</script>
+
+
+
+
+  </head>
+
+  <body class="layout--default">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Gapry's Blog
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a
+                href="/about/"
+                
+                
+              >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      <h2 id="study-notes-division-advent-of-compiler-optimisations-2025">Study Notes: Division, Advent of Compiler Optimisations 2025</h2>
+
+<p>These notes are based on the post <a href="https://xania.org/202512/06-dividing-to-conquer"><strong>Division</strong></a> and the YouTube video <a href="https://www.youtube.com/watch?v=7Rtk0qOX9zs&amp;list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&amp;index=7"><strong>[AoCO 6/25] Integer Division</strong></a> which are Day 6 of the <a href="https://xania.org/AoCO2025-archive">Advent of Compiler Optimisations 2025</a> Series by <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>.</p>
+
+<p>My notes focus on reproducing and verifying <a href="https://xania.org/MattGodbolt">Matt Godbolt</a>’s teaching within a local development environment using <code class="language-plaintext highlighter-rouge">LLVM</code> toolchain on <code class="language-plaintext highlighter-rouge">Ubuntu</code>.</p>
+
+<p>Written by me and assisted by AI, proofread by me and assisted by AI.</p>
+
+<h4 id="development-environment">Development Environment</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lsb_release -d
+Description:	Ubuntu 24.04.3 LTS
+
+$ clang -v
+Ubuntu clang version 18.1.8
+
+$ llvm-objdump -v
+Ubuntu LLVM version 18.1.8
+
+$ nvim --version
+NVIM v0.11.5
+
+$ echo $SHELL
+/usr/bin/fish
+</code></pre></div></div>
+
+<h2 id="x86-signed-integer-division">x86 Signed Integer Division</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim div.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int div(int x) {
+  return x / 512;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -c div.c; llvm-objdump -d --x86-asm-syntax=att div.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>div.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;div&gt;:
+       0: 8d 87 ff 01 00 00             leal    0x1ff(%rdi), %eax
+       6: 85 ff                         testl   %edi, %edi
+       8: 0f 49 c7                      cmovnsl %edi, %eax
+       b: c1 f8 09                      sarl    $0x9, %eax
+       e: c3                            retq
+</code></pre></div></div>
+
+<p>Instructions:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- leal    &lt;offset&gt;(&lt;base&gt;), &lt;Rd&gt; ; &lt;Rd&gt;   = offset + base
+- cmovnsl &lt;Rs&gt;, &lt;Rd&gt;             ; cmov   = conditional move
+                                 ; ns     = Not Signed
+                                 ; cmovns = Conditional Move if Not Sign
+- sarl    &lt;imm&gt;, &lt;Rd&gt;            ; sar    = Shift Arithmetic Right
+</code></pre></div></div>
+
+<p>In C, signed integer division truncates toward zero. For example:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+  printf("%d %d\n", 1 / 512, -1 / 512);
+  return 0;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ clang -o app.out main.c
+$ ./app.out
+$ 0 0
+</code></pre></div></div>
+
+<p>But replacing division with an arithmetic right shift does not produce the same result for negative numbers.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+  printf("%d %d\n", 1 &gt;&gt; 9, -1 &gt;&gt; 9);
+  return 0;
+} 
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ clang -o app.out main.c
+$ ./app.out
+$ 0 -1
+</code></pre></div></div>
+
+<p>To resolve this problem, the compiler adds <code class="language-plaintext highlighter-rouge">2^n - 1</code> to the negative number.
+In this case, n = 9, hence it is <code class="language-plaintext highlighter-rouge">2^9 - 1 = 512 - 1 = 511 = 0x1FF</code></p>
+
+<p>Why <code class="language-plaintext highlighter-rouge">2^n - 1</code> ? Let’s consdier <code class="language-plaintext highlighter-rouge">n = 9</code></p>
+
+<p>In binary, <code class="language-plaintext highlighter-rouge">2^9 - 1</code> creates the exactly 9 ones:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  2^9 | 1 0 0 0 0 0 0 0 0 0
+-   1 | 0 0 0 0 0 0 0 0 0 1
+---------------------------
+        0 1 1 1 1 1 1 1 1 1
+</code></pre></div></div>
+
+<p>It can help us to filp the bit of <code class="language-plaintext highlighter-rouge">x</code>. For example, <code class="language-plaintext highlighter-rouge">x = -1</code></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Position | 32 (Sign Bit)           10                 1
+         |  v                       v                 v
+   Carry |  1 1 1 1 1 ... 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 
+      -1 |  1 1 1 1 1 ... 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1  (0xFFFFFFFF)
+   + 511 |  0 0 0 0 0 ... 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1  (0x000001FF)
+   ----- |-----------------------------------------------
+     510 |  0 0 0 0 0 ... 0 0 0 0 0 1 1 1 1 1 1 1 1 1 0  (0x000001FE)
+</code></pre></div></div>
+
+<p>Hence, the compiler does <code class="language-plaintext highlighter-rouge">(-1 + 511) / 512 = 510 / 512 = 510 &gt;&gt; 9 = 0</code>, we get the correct result.</p>
+
+<p>In summary, the compiler use the <code class="language-plaintext highlighter-rouge">cmovens</code> and <code class="language-plaintext highlighter-rouge">test</code> instructions to detect whether <code class="language-plaintext highlighter-rouge">x</code> is positive.
+If <code class="language-plaintext highlighter-rouge">x</code> is a positive number, shift it. Otherwise, use <code class="language-plaintext highlighter-rouge">2^n - 1</code> to create an <code class="language-plaintext highlighter-rouge">n</code> one mask. 
+Then we can use the shift operator to achieve the same result as we use the division operator.</p>
+
+<h2 id="x86-unsign-integer-division">x86 Unsign Integer Division</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>unsigned div(unsigned x) {
+  return x / 512;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -c div.c; llvm-objdump -d --x86-asm-syntax=att div.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>div.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;div&gt;:
+       0: 89 f8                         movl    %edi, %eax
+       2: c1 e8 09                      shrl    $0x9, %eax
+       5: c3                            retq
+</code></pre></div></div>
+
+<p>Instruction:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>shrl &lt;imm&gt;, &lt;Rd&gt; ; shr := Shift Right Logical, that is &lt;Rd&gt; = &lt;Rd&gt; &lt;&lt; &lt;imm&gt;
+</code></pre></div></div>
+
+<p>This case is easier than previous one. It only requires knowing what <code class="language-plaintext highlighter-rouge">shr</code> is.</p>
+
+<p>You may also want to know the difference between <code class="language-plaintext highlighter-rouge">shr</code> and <code class="language-plaintext highlighter-rouge">sar</code>.</p>
+
+<p>Here, I show an example to you.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Original Dec</th>
+      <th style="text-align: left">Original Binary</th>
+      <th style="text-align: left">Operation</th>
+      <th style="text-align: left">Result Binary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">3</td>
+      <td style="text-align: left">0b0011</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shrl $2</code></td>
+      <td style="text-align: left">0b0000</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">3</td>
+      <td style="text-align: left">0b0011</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">sarl $2</code></td>
+      <td style="text-align: left">0b0000</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-3</td>
+      <td style="text-align: left">0b1101</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shrl $2</code></td>
+      <td style="text-align: left">0b0011</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-3</td>
+      <td style="text-align: left">0b1101</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">sarl $2</code></td>
+      <td style="text-align: left">0b1111</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="arm-signed-division-aarch64">Arm Signed Division (AArch64)</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim div.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int div(int x) {
+  return x / 512;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c div.c; llvm-objdump -d div.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>div.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;div&gt;:
+       0: 1107fc08      add     w8, w0, #0x1ff
+       4: 7100001f      cmp     w0, #0x0
+       8: 1a80b108      csel    w8, w8, w0, lt
+       c: 13097d00      asr     w0, w8, #9
+      10: d65f03c0      ret
+</code></pre></div></div>
+
+<p>The reason is the same as in the previous x86 case, we need to know why we need to use <code class="language-plaintext highlighter-rouge">0x1FF</code>.</p>
+
+<p>Instructions:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- add &lt;Wd&gt;, &lt;Wn&gt;, #imm          ; w8 = w0 + 0x1ff
+- cmp &lt;Wn&gt;, #imm                ; Compares w8 with #0x0, and update the processor flags NZCV
+- csel &lt;Wd&gt;, &lt;Wn&gt;, &lt;Wm&gt;, &lt;cond&gt; ; Conditional Select. 
+                                ; If the condition lt (Less Than) is true, it selects w8; 
+                                ; otherwise, it selects w0.
+- asr &lt;Wd&gt;, &lt;Wn&gt;, #imm          : Arithmetic Shift Right, w0 = w8 &gt;&gt; 9
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Flag</th>
+      <th style="text-align: left">Name</th>
+      <th style="text-align: left">Bit</th>
+      <th style="text-align: left">Description (when set to 1)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><strong>N</strong></td>
+      <td style="text-align: left">Negative</td>
+      <td style="text-align: left">31</td>
+      <td style="text-align: left">The result of the operation was negative (MSB = 1).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Z</strong></td>
+      <td style="text-align: left">Zero</td>
+      <td style="text-align: left">30</td>
+      <td style="text-align: left">The result of the operation was exactly zero.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>C</strong></td>
+      <td style="text-align: left">Carry</td>
+      <td style="text-align: left">29</td>
+      <td style="text-align: left">An unsigned overflow occurred (or a borrow in subtraction).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>V</strong></td>
+      <td style="text-align: left">oVerflow</td>
+      <td style="text-align: left">28</td>
+      <td style="text-align: left">A signed overflow occurred (result exceeded signed range).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="arm-unsigned-division-aarch64">Arm Unsigned Division (AArch64)</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ nvim div.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>unsigned div(unsigned x) {
+  return x / 512;
+}
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c div.c; llvm-objdump -d div.o
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>div.o:  file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000000 &lt;div&gt;:
+       0: 53097c00      lsr     w0, w0, #9
+       4: d65f03c0      ret
+</code></pre></div></div>
+
+<p>Instruction:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lsr &lt;Wd&gt;, &lt;Wn&gt;, #imm ; Logical Shift Right, that is w0 = w0 &gt;&gt; 9.
+</code></pre></div></div>
+
+<h2 id="references">References</h2>
+<ul>
+  <li>https://developer.arm.com/documentation/ddi0601/2025-12/AArch64-Registers/NZCV–Condition-Flags</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+      
+        
+          <li><a href="https://github.com/gapry" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/_gapry" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 <a href="">Gapry's Blog</a>. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

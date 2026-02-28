@@ -28,4 +28,10 @@ var store = [{
         "tags": ["compiler"],
         "url": "/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-05.html",
         "teaser": null
+      },{
+        "title": "Study Notes: Division, Advent of Compiler Optimisations 2025",
+        "excerpt":"Study Notes: Division, Advent of Compiler Optimisations 2025 These notes are based on the post Division and the YouTube video [AoCO 6/25] Integer Division which are Day 6 of the Advent of Compiler Optimisations 2025 Series by Matt Godbolt. My notes focus on reproducing and verifying Matt Godbolt’s teaching within...","categories": [],
+        "tags": ["compiler"],
+        "url": "/2026/02/28/Advent-of-Compiler-Optimisations-Study-Notes-06.html",
+        "teaser": null
       }]
