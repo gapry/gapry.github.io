@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import Analytics from './Analytics';
 import NotFound from './NotFound';
 
-const allPostFiles = import.meta.glob('/public/posts/**/*.md');
+const allPostFiles = import.meta.glob('/public/posts/**/*.md', { query: '?url', import: 'default' });
 
 function App() {
   const [content, setContent] = useState('');
