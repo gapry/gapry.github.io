@@ -3,10 +3,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import Analytics from './Analytics';
-import NotFound from './NotFound';
-import Home from './Home';
-import './App.css';
+import Analytics from './components/Analytics';
+import NotFound from './pages/NotFound/NotFound';
+import Home from './pages/Home/Home';
+import './styles/App.css';
 
 export default function App() {
   const [content, setContent] = useState('');
