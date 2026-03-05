@@ -34,7 +34,14 @@ years.forEach(year => {
   }
 });
 
-allPosts.sort((a, b) => b.date.localeCompare(a.date));
+allPosts.sort((a, b) => {
+  const dateCompare = b.date.localeCompare(a.date);
+
+  if (dateCompare === 0) {
+    return b.originalName.localeCompare(a.originalName);
+  }
+  return dateCompare;
+});
 
 const postsData = JSON.stringify(allPosts, null, 2);
 fs.writeFileSync('./public/posts.json', postsData);

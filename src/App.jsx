@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Analytics from './Analytics';
 import NotFound from './NotFound';
 import Home from './Home';
+import './App.css';
 
 export default function App() {
   const [content, setContent] = useState('');
-  const [posts, setPosts] = useState([]);
-  const [status, setStatus] = useState('loading');
+  const [posts  , setPosts]   = useState([]);
+  const [status , setStatus]  = useState('loading');
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params         = new URLSearchParams(window.location.search);
     const redirectedPath = params.get('p');
+
     let currentPath = redirectedPath || window.location.pathname;
 
     if (redirectedPath) {
@@ -24,7 +29,7 @@ export default function App() {
         setPosts(data);
 
         const pathClean = currentPath.replace(/\.html$/, '');
-        const parts = pathClean.split('/').filter(Boolean);
+        const parts     = pathClean.split('/').filter(Boolean);
 
         if (parts.length === 0 || (parts.length === 1 && parts[0] === 'index')) {
           setStatus('home');
@@ -35,10 +40,10 @@ export default function App() {
           const [year, month, day, slug] = parts;
 
           const found = data.find(p =>
-            p.year === year &&
+            p.year  === year  &&
             p.month === month &&
-            p.day === day &&
-            p.slug === slug
+            p.day   === day   &&
+            p.slug  === slug
           );
           
           if (found) {
@@ -59,21 +64,46 @@ export default function App() {
       .catch(() => setStatus('404'));
   }, []);
 
-  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'loading') {
+    return <div className="app-shell">Loading...</div>;
+  }
 
   return (
     <>
       <Analytics />
-      <div className="app-shell" style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
+      <div className="app-shell">
         {status === '404' ? (
           <NotFound />
         ) : status === 'home' ? (
           <Home posts={posts} />
         ) : (
-          <article>
-            <ReactMarkdown>{content}</ReactMarkdown>
+          <article className="markdown-body">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code({ node, inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '');
+                  return !inline && match ? (
+                    <SyntaxHighlighter
+                      style={vscDarkPlus}
+                      language={match[1]}
+                      PreTag="div"
+                      {...props}
+                    >
+                      {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  );
+                }
+              }}
+            >
+              {content}
+            </ReactMarkdown>
             <hr />
-            <a href="/" style={{ display: 'block', marginTop: '20px' }}>← Back to Home</a>
+            <a href="/" className="back-link">← Back to Home</a>
           </article>
         )}
       </div>
