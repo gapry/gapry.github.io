@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "clean": "rm -rf dist",
+    "prebuild": "bun run clean",
+    "build": "vite build && bun build.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
