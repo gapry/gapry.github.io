@@ -6,6 +6,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Analytics from './components/Analytics';
 import NotFound from './pages/NotFound/NotFound';
 import Home from './pages/Home/Home';
+import Footer from './components/Footer/Footer';
 import './styles/App.css';
 
 export default function App() {
@@ -106,6 +107,7 @@ export default function App() {
             <a href="/" className="back-link">← Back to Home</a>
           </article>
         )}
+        <Footer />
       </div>
     </>
   );
