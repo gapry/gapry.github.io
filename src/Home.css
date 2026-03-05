@@ -1,0 +1,59 @@
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.home-title {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: #ffffff; 
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-item {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.post-date {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  color: #999; 
+  margin-right: 10px;
+}
+
+.post-link {
+  color: #1890ff;
+  text-decoration: none;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.post-link:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+.pagination {
+  display: flex;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.pagination-btn {
+  background: none;
+  border: none;
+  color: #1890ff;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.pagination-btn:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}

@@ -1,14 +1,17 @@
 import Analytics from './Analytics';
+import './NotFound.css';
 
 export default function NotFound() {
   return (
     <>
       <Analytics />
-      <div style={{ textAlign: 'center', padding: '10vh 20px' }}>
-        <h1 style={{ fontSize: '3rem', color: '#ff4d4f' }}>404</h1>
-        <h2>Page Not Found</h2>
-        <p>Sorry, the article or page you are looking for seems to have moved or no longer exists.</p>
-        <a href="/" style={{ color: '#1890ff', textDecoration: 'none' }}>
+      <div className="not-found-container">
+        <h1 className="not-found-code">404</h1>
+        <h2 className="not-found-title">Page Not Found</h2>
+        <p className="not-found-text">
+          Sorry, the article or page you are looking for seems to have moved or no longer exists.
+        </p>
+        <a href="/" className="not-found-link">
           ← Return to homepage
         </a>
       </div>
