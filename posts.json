@@ -1,0 +1,37 @@
+[
+  {
+    "year": "2026",
+    "date": "2026-03-05",
+    "slug": "Test",
+    "originalName": "2026-03-05-Test",
+    "title": "Test"
+  },
+  {
+    "year": "2026",
+    "date": "2026-02-03",
+    "slug": "Test5",
+    "originalName": "2026-02-03-Test5",
+    "title": "Test5"
+  },
+  {
+    "year": "2026",
+    "date": "2026-01-31",
+    "slug": "Test123",
+    "originalName": "2026-01-31-Test123",
+    "title": "Test123"
+  },
+  {
+    "year": "2026",
+    "date": "2026-01-29",
+    "slug": "Test3",
+    "originalName": "2026-01-29-Test3",
+    "title": "Test3"
+  },
+  {
+    "year": "2025",
+    "date": "2025-12-13",
+    "slug": "Test7",
+    "originalName": "2025-12-13-Test7",
+    "title": "Test7"
+  }
+]
