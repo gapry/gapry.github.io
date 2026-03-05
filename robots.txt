@@ -1,2 +1,2 @@
-echo "User-agent: *
-Allow: /" > public/robots.txt
+User-agent: *
+Allow: /
