@@ -1,1 +1,2 @@
-Sitemap: /sitemap.xml
+echo "User-agent: *
+Allow: /" > public/robots.txt
