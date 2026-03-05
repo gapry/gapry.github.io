@@ -1,0 +1,11 @@
+{
+  "siteName": "Gapry's Technical Writing",
+  "analytics": {
+    "provider": "google-gtag",
+    "trackingId": "G-4DG3HSBT1T",
+    "anonymizeIp": true
+  },
+  "social": {
+    "github": "gapry"
+  }
+}

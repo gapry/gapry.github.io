@@ -1,0 +1,8 @@
+{
+  "short_name": "Gapry",
+  "name": "Gapry Technical Writing",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

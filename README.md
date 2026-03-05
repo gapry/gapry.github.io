@@ -1,0 +1,1 @@
+My Technical Writing Licensed under **CC BY-NC-SA 4.0**, see [LICENSE](LICENSE) file.
