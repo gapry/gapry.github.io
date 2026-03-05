@@ -14,15 +14,20 @@ years.forEach(year => {
       if (file.endsWith('.md')) {
         const fileName = file.replace('.md', '');
         const parts = fileName.split('-');
-        const date = parts.slice(0, 3).join('-');
+
+        const y = parts[0];
+        const m = parts[1];
+        const d = parts[2];
         const slug = parts.slice(3).join('-');
 
         allPosts.push({
-          year,
-          date,
+          year: y,
+          month: m,
+          day: d,
           slug,
           originalName: fileName,
-          title: slug.replace(/-/g, ' ')
+          title: slug.replace(/-/g, ' '),
+          date: `${y}-${m}-${d}`
         });
       }
     });
@@ -38,7 +43,7 @@ if (fs.existsSync(path.join(distDir, 'index.html'))) {
   fs.writeFileSync(path.join(distDir, 'posts.json'), postsData);
 
   allPosts.forEach(post => {
-    const targetDir = path.join(distDir, post.year);
+    const targetDir = path.join(distDir, post.year, post.month, post.day);
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }

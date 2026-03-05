@@ -22,7 +22,7 @@ export default function App() {
       .then(res => res.json())
       .then(data => {
         setPosts(data);
-        
+
         const pathClean = currentPath.replace(/\.html$/, '');
         const parts = pathClean.split('/').filter(Boolean);
 
@@ -31,9 +31,15 @@ export default function App() {
           return;
         }
 
-        if (parts.length === 2) {
-          const [year, slug] = parts;
-          const found = data.find(p => p.year === year && p.slug === slug);
+        if (parts.length === 4) {
+          const [year, month, day, slug] = parts;
+
+          const found = data.find(p =>
+            p.year === year &&
+            p.month === month &&
+            p.day === day &&
+            p.slug === slug
+          );
           
           if (found) {
             fetch(`/posts/${year}/${found.originalName}.md`)

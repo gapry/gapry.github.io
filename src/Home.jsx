@@ -17,14 +17,14 @@ export default function Home({ posts }) {
         {currentPosts.map(post => (
           <li key={post.originalName} className="post-item">
             <span className="post-date">{post.date}</span>
-            <a href={`/${post.year}/${post.slug}.html`} className="post-link">
+            <a href={`/${post.year}/${post.month}/${post.day}/${post.slug}.html`} className="post-link">
               {post.title}
             </a>
           </li>
         ))}
       </ul>
 
-      <nav className="pagination">
+      <nav className="pagination" style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
         {hasPrev && (
           <button onClick={() => setCurrentPage(p => p - 1)}>← Newer</button>
         )}
