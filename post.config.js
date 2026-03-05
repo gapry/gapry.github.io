@@ -55,7 +55,9 @@ if (fs.existsSync(path.join(distDir, 'index.html'))) {
     const targetDir = path.join(distDir, post.year, post.month, post.day);
 
     if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
+      fs.mkdirSync(targetDir, {
+        recursive: true
+      });
     }
 
     fs.copyFileSync(
@@ -67,6 +69,11 @@ if (fs.existsSync(path.join(distDir, 'index.html'))) {
   fs.copyFileSync(
     path.join(distDir, 'index.html'),
     path.join(distDir, '404.html')
+  );
+
+  fs.copyFileSync(
+    path.join(distDir, 'index.html'),
+    path.join(distDir, 'about.html')
   );
 }
 

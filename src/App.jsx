@@ -6,6 +6,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Analytics from './components/Analytics';
 import NotFound from './pages/NotFound/NotFound';
 import Home from './pages/Home/Home';
+import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import './styles/App.css';
 
@@ -31,6 +32,17 @@ export default function App() {
 
         const pathClean = currentPath.replace(/\.html$/, '');
         const parts     = pathClean.split('/').filter(Boolean);
+
+        if (parts.length === 1 && parts[0] === 'about') {
+          fetch('/about.md')
+            .then(res => res.text())
+            .then(text => {
+              setContent(text);
+              setStatus('post');
+            })
+            .catch(() => setStatus('404'));
+          return;
+        }
 
         if (parts.length === 0 || (parts.length === 1 && parts[0] === 'index')) {
           setStatus('home');
@@ -73,6 +85,7 @@ export default function App() {
     <>
       <Analytics />
       <div className="app-shell">
+        <Header />
         {status === '404' ? (
           <NotFound />
         ) : status === 'home' ? (
