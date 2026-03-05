@@ -1,10 +1,8 @@
-import Analytics from './Analytics';
 import './NotFound.css';
 
 export default function NotFound() {
   return (
     <>
-      <Analytics />
       <div className="not-found-container">
         <h1 className="not-found-code">404</h1>
         <h2 className="not-found-title">Page Not Found</h2>

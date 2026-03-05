@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import siteConfig from './config.json';
+import siteConfig from '../data/config.json';
 
 export default function Analytics() {
   const trackingId = siteConfig.analytics.trackingId;

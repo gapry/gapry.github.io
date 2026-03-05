@@ -2,32 +2,34 @@ import fs from 'fs';
 import path from 'path';
 
 const postsDir = './public/posts';
-const distDir = './dist';
+const distDir  = './dist';
 const allPosts = [];
-const years = fs.readdirSync(postsDir);
+const years    = fs.readdirSync(postsDir);
 
 years.forEach(year => {
   const yearPath = path.join(postsDir, year);
+
   if (fs.lstatSync(yearPath).isDirectory()) {
     const files = fs.readdirSync(yearPath);
+
     files.forEach(file => {
       if (file.endsWith('.md')) {
         const fileName = file.replace('.md', '');
-        const parts = fileName.split('-');
+        const parts    = fileName.split('-');
 
-        const y = parts[0];
-        const m = parts[1];
-        const d = parts[2];
+        const y    = parts[0];
+        const m    = parts[1];
+        const d    = parts[2];
         const slug = parts.slice(3).join('-');
 
         allPosts.push({
-          year: y,
-          month: m,
-          day: d,
+          year         : y,
+          month        : m,
+          day          : d,
           slug,
-          originalName: fileName,
-          title: slug.replace(/-/g, ' '),
-          date: `${y}-${m}-${d}`
+          originalName : fileName,
+          title        : slug.replace(/-/g, ' '),
+          date         : `${y}-${m}-${d}`
         });
       }
     });
@@ -51,11 +53,13 @@ if (fs.existsSync(path.join(distDir, 'index.html'))) {
 
   allPosts.forEach(post => {
     const targetDir = path.join(distDir, post.year, post.month, post.day);
+
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }
+
     fs.copyFileSync(
-      path.join(distDir, 'index.html'),
+      path.join(distDir  , 'index.html'),
       path.join(targetDir, `${post.slug}.html`)
     );
   });
