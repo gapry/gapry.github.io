@@ -1,13 +1,11 @@
-import { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useState, useEffect, useCallback } from 'react';
 import Analytics from './components/Analytics';
 import NotFound from './pages/NotFound/NotFound';
 import Home from './pages/Home/Home';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
+import MarkdownRenderer from './components/MarkdownRenderer';
+import siteConfig from './data/config.json';
 import './styles/App.css';
 
 export default function App() {
@@ -15,111 +13,91 @@ export default function App() {
   const [posts  , setPosts]   = useState([]);
   const [status , setStatus]  = useState('loading');
 
-  useEffect(() => {
+  const fetchMarkdown = useCallback((url, title) => {
+    fetch(url)
+      .then(res => res.text())
+      .then(text => {
+        document.title = title;
+        setContent(text);
+        setStatus('post');
+      })
+      .catch(() => setStatus('404'));
+  }, []);
+
+  const handleRouting = useCallback((allPosts) => {
     const params         = new URLSearchParams(window.location.search);
     const redirectedPath = params.get('p');
-
-    let currentPath = redirectedPath || window.location.pathname;
+    const currentPath    = redirectedPath || window.location.pathname;
 
     if (redirectedPath) {
       window.history.replaceState(null, '', redirectedPath);
     }
 
+    const pathClean = currentPath.replace(/\.html$/, '');
+    const parts     = pathClean.split('/').filter(Boolean);
+    
+    if (parts.length === 0 || (parts.length === 1 && parts[0] === 'index')) {
+      document.title = siteConfig.siteName;
+      setStatus('home');
+      return;
+    }
+
+    if (parts.length === 1 && parts[0] === 'about') {
+      fetchMarkdown('/about.md', `About | ${siteConfig.siteName}`);
+      return;
+    }
+
+    if (parts.length === 4) {
+      const [year, month, day, slug] = parts;
+
+      const found = allPosts.find(p => 
+        p.year === year && p.month === month && p.day === day && p.slug === slug
+      );
+
+      if (found) {
+        fetchMarkdown(`/posts/${year}/${found.originalName}.md`, `${found.title} | ${siteConfig.siteName}`);
+        return;
+      }
+    }
+
+    setStatus('404');
+  }, [fetchMarkdown]);
+
+  useEffect(() => {
     fetch('/posts.json')
       .then(res => res.json())
       .then(data => {
         setPosts(data);
-
-        const pathClean = currentPath.replace(/\.html$/, '');
-        const parts     = pathClean.split('/').filter(Boolean);
-
-        if (parts.length === 1 && parts[0] === 'about') {
-          fetch('/about.md')
-            .then(res => res.text())
-            .then(text => {
-              setContent(text);
-              setStatus('post');
-            })
-            .catch(() => setStatus('404'));
-          return;
-        }
-
-        if (parts.length === 0 || (parts.length === 1 && parts[0] === 'index')) {
-          setStatus('home');
-          return;
-        }
-
-        if (parts.length === 4) {
-          const [year, month, day, slug] = parts;
-
-          const found = data.find(p =>
-            p.year  === year  &&
-            p.month === month &&
-            p.day   === day   &&
-            p.slug  === slug
-          );
-          
-          if (found) {
-            fetch(`/posts/${year}/${found.originalName}.md`)
-              .then(res => res.text())
-              .then(text => {
-                setContent(text);
-                setStatus('post');
-              })
-              .catch(() => setStatus('404'));
-          } else {
-            setStatus('404');
-          }
-        } else {
-          setStatus('404');
-        }
+        handleRouting(data);
       })
       .catch(() => setStatus('404'));
-  }, []);
 
-  if (status === 'loading') {
-    return <div className="app-shell">Loading...</div>;
-  }
+    const onPopState = () => {
+      fetch('/posts.json').then(res => res.json()).then(handleRouting);
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [handleRouting]);
+
+  const renderContent = () => {
+    switch (status) {
+      case 'loading': return <div className="loading">Loading...</div>;
+      case '404':     return <NotFound />;
+      case 'home':    return <Home posts={posts} />;
+      case 'post':    return <MarkdownRenderer content={content} />;
+      default:        return <NotFound />;
+    }
+  };
 
   return (
     <>
       <Analytics />
       <div className="app-shell">
         <Header />
-        {status === '404' ? (
-          <NotFound />
-        ) : status === 'home' ? (
-          <Home posts={posts} />
-        ) : (
-          <article className="markdown-body">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                code({ node, inline, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={vscDarkPlus}
-                      language={match[1]}
-                      PreTag="div"
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                }
-              }}
-            >
-              {content}
-            </ReactMarkdown>
-            <hr />
-            <a href="/" className="back-link">← Back to Home</a>
-          </article>
-        )}
+        <main className="main-container">
+          {renderContent()}
+        </main>
         <Footer />
       </div>
     </>
