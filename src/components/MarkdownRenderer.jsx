@@ -4,11 +4,12 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const CodeBlock = ({ inline, className, children, ...props }) => {
-  const match    = /language-(\w+)/.exec(className || '');
-  const language = match ? match[1] : '';
-  const content  = String(children).replace(/\n$/, '');
+  const match = /language-(\w+)/.exec(className || '');
 
   if (!inline && match) {
+    const language = match ? match[1] : '';
+    const content  = String(children).replace(/\n$/, '');
+
     return (
       <SyntaxHighlighter
         style={vscDarkPlus}
@@ -32,7 +33,7 @@ const MarkdownComponents = {
   code: CodeBlock,
 };
 
-export default function MarkdownRenderer({ content, showBackLink = true }) {
+export default function MarkdownRenderer({ content }) {
   return (
     <article className="markdown-body">
       <ReactMarkdown
