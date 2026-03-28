@@ -4,6 +4,10 @@
     "month": "02",
     "day": "28",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-06",
+    "tags": [
+      "compiler",
+      "x86"
+    ],
     "originalName": "2026-02-28-Advent-of-Compiler-Optimisations-Study-Notes-06",
     "title": "Advent of Compiler Optimisations Study Notes 06",
     "date": "2026-02-28"
@@ -13,6 +17,10 @@
     "month": "02",
     "day": "28",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-05",
+    "tags": [
+      "compiler",
+      "arm"
+    ],
     "originalName": "2026-02-28-Advent-of-Compiler-Optimisations-Study-Notes-05",
     "title": "Advent of Compiler Optimisations Study Notes 05",
     "date": "2026-02-28"
@@ -22,6 +30,10 @@
     "month": "02",
     "day": "27",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-04",
+    "tags": [
+      "compiler",
+      "x86"
+    ],
     "originalName": "2026-02-27-Advent-of-Compiler-Optimisations-Study-Notes-04",
     "title": "Advent of Compiler Optimisations Study Notes 04",
     "date": "2026-02-27"
@@ -31,6 +43,10 @@
     "month": "01",
     "day": "31",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-03",
+    "tags": [
+      "compiler",
+      "arm"
+    ],
     "originalName": "2026-01-31-Advent-of-Compiler-Optimisations-Study-Notes-03",
     "title": "Advent of Compiler Optimisations Study Notes 03",
     "date": "2026-01-31"
@@ -40,6 +56,10 @@
     "month": "01",
     "day": "31",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-02",
+    "tags": [
+      "compiler",
+      "x86"
+    ],
     "originalName": "2026-01-31-Advent-of-Compiler-Optimisations-Study-Notes-02",
     "title": "Advent of Compiler Optimisations Study Notes 02",
     "date": "2026-01-31"
@@ -49,6 +69,10 @@
     "month": "01",
     "day": "01",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-01",
+    "tags": [
+      "compiler",
+      "x86"
+    ],
     "originalName": "2026-01-01-Advent-of-Compiler-Optimisations-Study-Notes-01",
     "title": "Advent of Compiler Optimisations Study Notes 01",
     "date": "2026-01-01"

@@ -1,3 +1,7 @@
+---
+tags: compiler, x86
+---
+
 ## Study Notes: Division, Advent of Compiler Optimisations 2025
 
 These notes are based on the post [**Division**](https://xania.org/202512/06-dividing-to-conquer) and the YouTube video [**[AoCO 6/25] Integer Division**](https://www.youtube.com/watch?v=7Rtk0qOX9zs&list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&index=7) which are Day 6 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
