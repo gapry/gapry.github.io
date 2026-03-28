@@ -4,7 +4,8 @@ import NotFound from './pages/NotFound/NotFound';
 import Home from './pages/Home/Home';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
-import MarkdownRenderer from './components/MarkdownRenderer';
+import MarkdownRenderer from './components/MarkdownRenderer/MarkdownRenderer';
+import Tags from './pages/Tags/Tags';
 import siteConfig from './data/config.json';
 import './styles/App.css';
 
@@ -25,6 +26,9 @@ export default function App() {
   }, []);
 
   const handleRouting = useCallback((allPosts) => {
+    console.log("Current Path Parts:", window.location.pathname.split('/').filter(Boolean));
+    console.log("All Posts Data:", allPosts)
+
     const params         = new URLSearchParams(window.location.search);
     const redirectedPath = params.get('p');
     const currentPath    = redirectedPath || window.location.pathname;
@@ -36,8 +40,25 @@ export default function App() {
     const pathClean = currentPath.replace(/\.html$/, '');
     const parts     = pathClean.split('/').filter(Boolean);
     
+    if (parts.length === 1 && parts[0] === 'tags') {
+      document.title = `Tags | ${siteConfig.siteName}`;
+      setStatus('tags-cloud'); 
+      return;
+    }
+
+    if (parts[0] === 'tag' && parts[1]) {
+      const tagName  = decodeURIComponent(parts[1]);
+      const filtered = allPosts.filter(p => p.tags && p.tags.includes(tagName));
+      
+      document.title = `Tag: ${tagName} | ${siteConfig.siteName}`;      
+      setPosts(filtered); 
+      setStatus('home'); 
+      return;
+    }
+
     if (parts.length === 0 || (parts.length === 1 && parts[0] === 'index')) {
       document.title = siteConfig.siteName;
+      setPosts(allPosts);
       setStatus('home');
       return;
     }
@@ -82,11 +103,12 @@ export default function App() {
 
   const renderContent = () => {
     switch (status) {
-      case 'loading': return <div className="loading">Loading...</div>;
-      case '404':     return <NotFound />;
-      case 'home':    return <Home posts={posts} />;
-      case 'post':    return <MarkdownRenderer content={content} />;
-      default:        return <NotFound />;
+      case 'loading':    return <div className="loading">Loading...</div>;
+      case '404':        return <NotFound />;
+      case 'home':       return <Home posts={posts} />;
+      case 'tags-cloud': return <Tags allPosts={posts} />;
+      case 'post':       return <MarkdownRenderer content={content} />;
+      default:           return <NotFound />;
     }
   };
 
@@ -94,7 +116,7 @@ export default function App() {
     <>
       <Analytics />
       <div className="app-shell">
-        <Header />
+        <Header allPosts={posts} />
         <main className="main-container">
           {renderContent()}
         </main>

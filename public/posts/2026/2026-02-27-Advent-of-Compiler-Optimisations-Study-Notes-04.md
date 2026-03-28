@@ -1,3 +1,7 @@
+---
+tags: compiler, x86
+---
+
 ## Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025
 
 These notes are based on the post [**Multiplying with a constant**](https://xania.org/202512/04-multiplying-integers) and the YouTube video [**[AoCO 4/25] Multiplying with a Constant**](https://www.youtube.com/watch?v=1X88od0miHs&list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&index=5) which are Day 4 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
@@ -358,14 +362,17 @@ I have reproduced the relevant technical insight below in its entirety to ensure
 
 ```text
 @moregirl4585
-Fact: on some architecture x*-3 is better expressed as x-(x<<2) and some better as -(x+x+x). Seems compilers don't work well for both case
+Fact: on some architecture x*-3 is better expressed as x-(x<<2) and some better as -(x+x+x). Seems
+compilers don't work well for both case
 
 @SLiV9
-Do you know why for multiplying by 6, it uses an ADD for the second x2? Why not another LEA like for multiplying by 2?
+Do you know why for multiplying by 6, it uses an ADD for the second x2? Why not another LEA like for
+multiplying by 2?
 |
 |--> @nurmr
 |    My suspicion is that address adder is "cheaper" to use than an ALU. 
-|    Especially with more complex code which might have other operations pipelined and running on an ALU. 
+|    Especially with more complex code which might have other operations pipelined and running on
+an ALU. 
 |
 |--> @HenryLoenwind 
      lea is faster than mov+add, but not faster than a "naked" add. 
@@ -373,26 +380,28 @@ Do you know why for multiplying by 6, it uses an ADD for the second x2? Why not 
      add reg,reg is a 2-byte instruction (like the xor we had on day 1).
 
 @lpprogrammingllc 
-It's worth noting the shifts-and-adds version might still be faster on modern CPUs due to instruction pipelining. 
-Yes, the total work done is more than a single imul, but it can do each part in parallel, until the final add. 
-However, it also requires more code, and more "slots" in the decoding/execution pipeline. 
-Lots of modern machines have a 4-wide instruction frontend. 
-So with the imul, one of them handles the imul, and 3 keep going on any other calculations they can. 
-With the shifts-and-adds version, 3 get held up waiting on the shifts, to then issue the adds. 
-Only one gets to work on anything else.  
-The compiler assumes there will usually be other work to do, 
-so aims for maximum throughput rather than prioritizing finishing the mult as soon as possible.
+It's worth noting the shifts-and-adds version might still be faster on modern CPUs due to
+instruction pipelining. Yes, the total work done is more than a single imul, but it can do each
+part in parallel, until the final add. However, it also requires more code, and more "slots" in the
+decoding/execution pipeline. Lots of modern machines have a 4-wide instruction frontend. So with
+the imul, one of them handles the imul, and 3 keep going on any other calculations they can. With
+the shifts-and-adds version, 3 get held up waiting on the shifts, to then issue the adds. Only one
+gets to work on anything else.  The compiler assumes there will usually be other work to do, so
+aims for maximum throughput rather than prioritizing finishing the mult as soon as possible.
 
 @lpprogrammingllc
-The CPU execution backend may well execute shifts and adds. However between your code in memory and that backend is the instruction decoder, 
-which uses the microcode to turn your single imul into whatever real micro instructions are required for the execution backend.
+The CPU execution backend may well execute shifts and adds. However between your code in memory and
+that backend is the instruction decoder, which uses the microcode to turn your single imul into
+whatever real micro instructions are required for the execution backend.
 
-If I understand the implicit part of your comment correctly, 
-you think there is no value in giving the instruction decoder the split-apart shift-and-add instructions because what the backend executes may be the same in either case. 
-This is incorrect. The cyclic latency (the number of cycles from beginning decode to commit) in the imul instruction is the number of cycles required for the instruction decoder 
-to issue microcode to the backend and for the backend to execute that microcode. Often the limiting factor is the frontend decode speed. 
-If you can decrease the number of cycles spent by the frontend doing the decode, you can decrease the total cycles required, 
-at the expense of more power use or less other work happening at the same time.
+If I understand the implicit part of your comment correctly, you think there is no value in giving
+the instruction decoder the split-apart shift-and-add instructions because what the backend
+executes may be the same in either case. This is incorrect. The cyclic latency (the number of
+cycles from beginning decode to commit) in the imul instruction is the number of cycles required
+for the instruction decoder to issue microcode to the backend and for the backend to execute that
+microcode. Often the limiting factor is the frontend decode speed. If you can decrease the number
+of cycles spent by the frontend doing the decode, you can decrease the total cycles required, at
+the expense of more power use or less other work happening at the same time.
 ```
 
 ## References

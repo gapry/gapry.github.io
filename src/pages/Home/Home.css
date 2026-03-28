@@ -1,13 +1,26 @@
 .home-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
 }
 
 .home-title {
   font-size: 1.5rem;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #ffffff; 
+}
+
+.tag-filter-info {
+  margin-bottom: 25px;
+}
+
+.clear-filter {
+  font-size: 0.9rem;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.clear-filter:hover {
+  color: #1890ff;
 }
 
 .post-list {
@@ -16,7 +29,11 @@
 }
 
 .post-item {
-  margin-bottom: 12px;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.post-info {
   font-size: 1.1rem;
 }
 
@@ -34,6 +51,27 @@
 
 .post-link:hover {
   color: #40a9ff;
+  text-decoration: underline;
+}
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+  margin-left: 2px; 
+}
+
+.tag-link {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.85rem;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.tag-link:hover {
+  color: #1890ff;
   text-decoration: underline;
 }
 
@@ -56,4 +94,11 @@
 .pagination-btn:hover {
   color: #40a9ff;
   text-decoration: underline;
+}
+
+.site-header {
+  width: 100%;
+  border-bottom: 1px solid #333;
+  padding: 1.5rem 0 0.5rem 0; 
+  margin-bottom: 0;
 }

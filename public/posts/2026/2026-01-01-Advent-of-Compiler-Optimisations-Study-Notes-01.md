@@ -1,3 +1,7 @@
+---
+tags: compiler, x86
+---
+
 ## Study Notes: Why xor eax, eax?, Advent of Compiler Optimisations 2025
 
 These notes are based on the post [**Why xor eax, eax?**](https://xania.org/202512/01-xor-eax-eax), which is Day 1 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
@@ -269,7 +273,9 @@ void f() {
 ```
 
 ```bash
-$ rm -f (path filter *.o); clang -O2 -c main.c; llvm-objdump -d --disassemble-symbols=f --x86-asm-syntax=att main.o
+$ rm -f (path filter *.o)
+$ clang -O2 -c main.c
+$ llvm-objdump -d --disassemble-symbols=f --x86-asm-syntax=att main.o
 ```
 
 ```bash

@@ -1,3 +1,7 @@
+---
+tags: compiler, x86
+---
+
 ## Study Notes: Addressing the adding situation, Advent of Compiler Optimisations 2025
 
 These notes are based on the post [**Addressing the adding situation**](https://xania.org/202512/02-adding-integers) and the YouTube video [**[AoCO 2/25] Adding Integers on x86 - just an ADD, right?**](https://www.youtube.com/watch?v=BOvg0sGJnes&list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&index=3) which are Day 2 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
@@ -174,12 +178,13 @@ it is often extremely useful because you can perform arithmetic without destroyi
 needed for a subsequent conditional jump or another calculation.
 
 @incubus3827
-In addition, LEA could run on the V-pipeline in the original Pentium, which often allowed performing some arithmetics + reshuffling registers 
+In addition, LEA could run on the V-pipeline in the original Pentium, which often 
+allowed performing some arithmetics + reshuffling registers 
 for no additional cycles. A true gamechanger for software rasterizers.
 
 @mytech6779 
-I recall the LEA instruction also uses a dedicated module on the CPU with an independent execution pipeline, 
-so the LEA operation can be concurrent with an ALU operation. 
+I recall the LEA instruction also uses a dedicated module on the CPU with an independent 
+execution pipeline, so the LEA operation can be concurrent with an ALU operation. 
 I can't say the address module addition [in isolation] is faster or the same cycle count as the ALU, 
 but being specialized I imagine the address module is somewhat simpler with fewer transistors 
 (reducing area and heat some small amount).

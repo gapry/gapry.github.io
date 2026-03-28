@@ -1,0 +1,38 @@
+.metadata-divider {
+  border: 0;
+  border-top: 1px solid #333;
+  margin: 0; 
+  width: 100%;
+}
+
+.post-metadata {
+  margin: 0; 
+  padding: 0.5rem 0;
+}
+
+.post-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.markdown-body {
+  margin-top: -1.5rem; 
+}
+
+.markdown-body > h1, 
+.markdown-body > h2, 
+.markdown-body > p {
+  margin-top: 0.8rem !important; 
+}
+
+.tag-pill {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.8rem;
+  background: #252525;
+  color: #1890ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+}
