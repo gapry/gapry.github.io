@@ -6,9 +6,6 @@ const POSTS_PER_PAGE = 10;
 export default function Home({ posts }) {
   const [currentPage, setCurrentPage] = useState(0);
 
-  const isTagPage  = window.location.pathname.includes('/tag/');
-  const currentTag = isTagPage ? decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop()) : null;
-
   useEffect(() => {
     setCurrentPage(0);
   }, [posts]);

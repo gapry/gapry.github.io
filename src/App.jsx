@@ -26,9 +26,6 @@ export default function App() {
   }, []);
 
   const handleRouting = useCallback((allPosts) => {
-    console.log("Current Path Parts:", window.location.pathname.split('/').filter(Boolean));
-    console.log("All Posts Data:", allPosts)
-
     const params         = new URLSearchParams(window.location.search);
     const redirectedPath = params.get('p');
     const currentPath    = redirectedPath || window.location.pathname;
@@ -116,7 +113,7 @@ export default function App() {
     <>
       <Analytics />
       <div className="app-shell">
-        <Header allPosts={posts} />
+        <Header />
         <main className="main-container">
           {renderContent()}
         </main>
