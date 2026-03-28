@@ -1,0 +1,47 @@
+.tags-page {
+  width: 100%;
+  padding-top: 20px;
+}
+
+.tags-cloud-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.tag-cloud-item {
+  display: flex;
+  align-items: center;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  padding: 8px 16px;
+  border-radius: 20px; 
+  text-decoration: none;
+}
+
+.tag-cloud-item:hover {
+  border-color: #1890ff;
+  background: #222;
+}
+
+.tag-hash {
+  color: #1890ff;
+  margin-right: 4px;
+  font-weight: bold;
+}
+
+.tag-name {
+  color: #eee;
+  font-size: 1rem;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+}
+
+.tag-count {
+  color: #666;
+  font-size: 0.8rem;
+  margin-left: 8px;
+  background: #2a2a2a;
+  padding: 2px 6px;
+  border-radius: 10px;
+}

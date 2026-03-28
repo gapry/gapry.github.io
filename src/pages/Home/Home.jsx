@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Home.css';
 
 const POSTS_PER_PAGE = 10;
 
 export default function Home({ posts }) {
   const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [posts]);
 
   const startIndex   = currentPage * POSTS_PER_PAGE;
   const currentPosts = posts.slice(startIndex, startIndex + POSTS_PER_PAGE);
@@ -18,15 +22,25 @@ export default function Home({ posts }) {
       <ul className="post-list">
         {currentPosts.map(post => (
           <li key={post.originalName} className="post-item">
-            <span className="post-date">
-              [{post.date}] --
-            </span>
-            <a
-              href={`/${post.year}/${post.month}/${post.day}/${post.slug}.html`}
-              className="post-link"
-            >
-              {post.title}
-            </a>
+            <div className="post-info">
+              <span className="post-date">[{post.date}] --</span>
+              <a
+                href={`/${post.year}/${post.month}/${post.day}/${post.slug}.html`}
+                className="post-link"
+              >
+                {post.title}
+              </a>
+            </div>
+            
+            {post.tags && post.tags.length > 0 && (
+              <div className="post-tags">
+                {post.tags.map(tag => (
+                  <a key={tag} href={`/tag/${tag}`} className="tag-link">
+                    #{tag}
+                  </a>
+                ))}
+              </div>
+            )}
           </li>
         ))}
       </ul>

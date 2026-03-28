@@ -1,3 +1,7 @@
+---
+tags: compiler, arm
+---
+
 ## Study Notes: ARM's barrel shifter tricks, Advent of Compiler Optimisations 2025
 
 These notes are based on the post [**ARM's barrel shifter tricks**](https://xania.org/202512/05-barrel-shifting-with-arm) and the YouTube video [**[AoCO 5/25] Multiplying with a Constant**](https://www.youtube.com/watch?v=TZubUyr2UEY&list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&index=6) which are Day 5 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
@@ -251,38 +255,49 @@ Subsequently, it performs `w0 = w8 - (w0 << 1) = w8 - w0 * 2 = 16 * w0 - 2 * w0 
 ## YouTube Comment Insights
 
 Since YouTube does not currently support generating direct permanent links to individual comments, 
-I have reproduced the relevant technical insight below in its entirety to ensure both accuracy and proper attribution.
+I have reproduced the relevant technical insight below in its entirety to ensure both accuracy 
+and proper attribution.
 
 ```text
 @kruador 
-@ciberman Yes, it means 'ARMv8'. That's not quite right because ARM Ltd enhanced the 32-bit instruction set (which they now call A32) 
-as well as adding the 64-bit instruction set (A64) in version 8.
+@ciberman Yes, it means 'ARMv8'. That's not quite right because ARM Ltd enhanced the 32-bit
+instruction set (which they now call A32) as well as adding the 64-bit instruction set (A64) in
+version 8.
 
-They also refer to 'AArch32' and 'AArch64' for extra confusion. I think 'AArch32' means 'the architectural state of a 32-bit ARM processor' 
-because you can use the alternative "Thumb" instruction set (which ARM Ltd renamed to T32 with ARMv8, in their documentation at least) instead of A32. 
-The embedded ARM Cortex-M only support T32, not A32.
+They also refer to 'AArch32' and 'AArch64' for extra confusion. I think 'AArch32' means 'the
+architectural state of a 32-bit ARM processor' because you can use the alternative "Thumb"
+instruction set (which ARM Ltd renamed to T32 with ARMv8, in their documentation at least) instead
+of A32. The embedded ARM Cortex-M only support T32, not A32.
 
-There is no equivalent of Thumb for AArch64 (no 'T64'), at least not as of yet (probably not ever), so 'AArch64' and 'A64' are virtually interchangeable. 
-And most people just say 'arm64' because 'AArch64' is unpronounceable while 'A64' is too ambiguous.
+There is no equivalent of Thumb for AArch64 (no 'T64'), at least not as of yet (probably not
+ever), so 'AArch64' and 'A64' are virtually interchangeable. And most people just say 'arm64'
+because 'AArch64' is unpronounceable while 'A64' is too ambiguous.
 
 @tlhIngan
-ARMv8 was designed to be more streamlined for modern superscalar architectures so it jettisoned a lot of ARM stuff that was responsible 
-for causing pipeline stalls and dependencies in favor of simpler instructions that can run faster. 
-When AArch64 was being introduced I remember seeing the ARM presentations on why the instruction set dumped a lot of it. 
-It's why an ARMv8 core only beats an ARMv7 core by about 10% in AArch32 mode but running the same code in AArch64 mode you can achieve a 50+% speedup. 
-Losing RSB for a two instruction LSB/SUB combination was deemed far superior in simplifying ALU operations.
+ARMv8 was designed to be more streamlined for modern superscalar architectures so it jettisoned a
+lot of ARM stuff that was responsible for causing pipeline stalls and dependencies in favor of
+simpler instructions that can run faster. When AArch64 was being introduced I remember seeing the
+ARM presentations on why the instruction set dumped a lot of it. It's why an ARMv8 core only beats
+an ARMv7 core by about 10% in AArch32 mode but running the same code in AArch64 mode you can
+achieve a 50+% speedup. Losing RSB for a two instruction LSB/SUB combination was deemed far
+superior in simplifying ALU operations.
 
 @kruador
-I think RSB was only really useful for this kind of operation. If you're not doing a shift on one of the operands, you can just swap which register is which. 
-But the 32-bit ARM architecture only supports the shift on operand 2, 
-so you have to have an instruction that does say Rdest := operand2 - Rn instead of Rdest := Rm - operand2.
+I think RSB was only really useful for this kind of operation. If you're not doing a shift on one
+of the operands, you can just swap which register is which. But the 32-bit ARM architecture only
+supports the shift on operand 2, so you have to have an instruction that does say Rdest :=
+operand2 - Rn instead of Rdest := Rm - operand2.
 
-ARM1 didn't even have a multiply instruction. Adds, shifts and subtracts were the only options out there. 
-No room for a multiplier in only 25,000 transistors! So RSB was really helpful there. However, these days there an abundance of transistors available: 
-even the lowly ARM Cortex-M0 (a 32-bit ARMv6 architecture core that only supports the Thumb instruction set, and not all of that) can be configured with a single-cycle multiplier.
+ARM1 didn't even have a multiply instruction. Adds, shifts and subtracts were the only options out
+there. No room for a multiplier in only 25,000 transistors! So RSB was really helpful there.
+However, these days there an abundance of transistors available: even the lowly ARM Cortex-M0 (a
+32-bit ARMv6 architecture core that only supports the Thumb instruction set, and not all of that)
+can be configured with a single-cycle multiplier.
 
-The main issue wasn't simplifying the ALU operations, I don't think, but simply releasing bits to be able to encode more different operations and more registers. 
-AArch64 needs three bits more per instruction for register mapping - one for the destination register and one for each source - because it has twice as many registers as AArch32 (32 vs 16).
+The main issue wasn't simplifying the ALU operations, I don't think, but simply releasing bits to
+be able to encode more different operations and more registers. AArch64 needs three bits more per
+instruction for register mapping - one for the destination register and one for each source -
+because it has twice as many registers as AArch32 (32 vs 16).
 ```
 
 ## References

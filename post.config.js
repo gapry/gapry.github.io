@@ -14,6 +14,19 @@ years.forEach(year => {
 
     files.forEach(file => {
       if (file.endsWith('.md')) {
+        const filePath = path.join(yearPath, file);
+        const content  = fs.readFileSync(filePath, 'utf8');
+
+        const tagsMatch = content.match(/^tags:\s*(.*)$/m);
+
+        let tags = [];
+        if (tagsMatch) {
+          tags = tagsMatch[1]
+            .split(',')
+            .map(t => t.trim())
+            .filter(Boolean); 
+        }
+
         const fileName = file.replace('.md', '');
         const parts    = fileName.split('-');
 
@@ -27,6 +40,7 @@ years.forEach(year => {
           month        : m,
           day          : d,
           slug,
+          tags,
           originalName : fileName,
           title        : slug.replace(/-/g, ' '),
           date         : `${y}-${m}-${d}`
@@ -66,15 +80,39 @@ if (fs.existsSync(path.join(distDir, 'index.html'))) {
     );
   });
 
+  const allTags = [...new Set(allPosts.flatMap(p => p.tags))];
+  
+  allTags.forEach(tag => {
+    const tagDir = path.join(distDir, 'tag', tag);
+
+    if (!fs.existsSync(tagDir)) {
+      fs.mkdirSync(tagDir, { 
+        recursive: true 
+      });
+    }
+    
+    fs.copyFileSync(
+      path.join(distDir, 'index.html'), 
+      path.join(tagDir, 'index.html')
+    );
+  });
+
+  const tagsPageDir = path.join(distDir, 'tags');
+  if (!fs.existsSync(tagsPageDir)) {
+    fs.mkdirSync(tagsPageDir, { recursive: true });
+  }
   fs.copyFileSync(
     path.join(distDir, 'index.html'),
-    path.join(distDir, '404.html')
+    path.join(tagsPageDir, 'index.html') 
   );
 
-  fs.copyFileSync(
-    path.join(distDir, 'index.html'),
-    path.join(distDir, 'about.html')
-  );
+  const PagesComponents = ['404.html', 'about.html', 'tags.html']; 
+  PagesComponents.forEach(page => {
+    fs.copyFileSync(
+      path.join(distDir, 'index.html'),
+      path.join(distDir, page)
+    );
+  });
 }
 
 console.log(`✅ Build ${allPosts.length} Posts Successfully`);

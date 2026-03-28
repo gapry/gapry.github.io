@@ -6,14 +6,13 @@ export default function Header() {
     <header className="site-header">
       <div className="header-container">
         <div className="header-left">
-          <a href="/" className="logo">
-            {siteConfig.siteName}
-          </a>
+          <a href="/" className="logo">{siteConfig.siteName}</a>
         </div>
 
         <nav className="header-right">
           <ul className="nav-menu">
-            <li><a href="/about">About Me</a></li>
+            <li><a href="/tags" className="nav-link">Tags</a></li>
+            <li><a href="/about" className="nav-link">About Me</a></li>
           </ul>
         </nav>
       </div>
