@@ -19,7 +19,8 @@
     "day": "28",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-06",
     "tags": [
-      "compiler",
+      "AoCO2025",
+      "Compiler",
       "x86"
     ],
     "originalName": "2026-02-28-Advent-of-Compiler-Optimisations-Study-Notes-06",
@@ -32,7 +33,8 @@
     "day": "28",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-05",
     "tags": [
-      "compiler",
+      "AoCO2025",
+      "Compiler",
       "arm"
     ],
     "originalName": "2026-02-28-Advent-of-Compiler-Optimisations-Study-Notes-05",
@@ -45,7 +47,8 @@
     "day": "27",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-04",
     "tags": [
-      "compiler",
+      "AoCO2025",
+      "Compiler",
       "x86"
     ],
     "originalName": "2026-02-27-Advent-of-Compiler-Optimisations-Study-Notes-04",
@@ -58,7 +61,8 @@
     "day": "31",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-03",
     "tags": [
-      "compiler",
+      "AoCO2025",
+      "Compiler",
       "arm"
     ],
     "originalName": "2026-01-31-Advent-of-Compiler-Optimisations-Study-Notes-03",
@@ -71,7 +75,8 @@
     "day": "31",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-02",
     "tags": [
-      "compiler",
+      "AoCO2025",
+      "Compiler",
       "x86"
     ],
     "originalName": "2026-01-31-Advent-of-Compiler-Optimisations-Study-Notes-02",
@@ -84,7 +89,8 @@
     "day": "01",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-01",
     "tags": [
-      "compiler",
+      "AoCO2025",
+      "Compiler",
       "x86"
     ],
     "originalName": "2026-01-01-Advent-of-Compiler-Optimisations-Study-Notes-01",
