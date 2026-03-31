@@ -34,7 +34,7 @@ $$
 \lfloor \frac{N}{D} \rfloor = \lfloor \frac{N \cdot M}{2^k} \rfloor
 $$
 
-The compiler's goal is to find a fixed-point approxmiation such that :
+The compiler's goal is to find a fixed-point approximation such that :
 
 $$
 \frac{1}{D} \approx \frac{M}{2^{k}}
@@ -56,7 +56,7 @@ Let's analyze the following example to understand how it works.
 
 ## Example : Division by 10
 
-In this example, we analyze how the compile handles unsigned division by 10. 
+In this example, we analyze how the compiler handles unsigned division by 10. 
 
 ```bash
 $ nvim main.c
