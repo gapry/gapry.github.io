@@ -29,8 +29,7 @@ This note introduces a loop optimization known as `Induction Variable Eliminatio
 The core concept is analogous to an `arithmetic sequence` **[2]**.
 
 The closed-form expression $a_n = a_1 + (n - 1) d$ is mathematically equivalent to the 
-
-recursive definition $a_{n + 1} = a_{n} + d$
+recursive definition $a_{n + 1} = a_{n} + d$.
 
 To verify whether a compiler performs induction variable optimization, we compare two implementations:
 
