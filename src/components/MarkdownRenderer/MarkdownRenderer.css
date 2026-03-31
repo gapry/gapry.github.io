@@ -28,3 +28,14 @@
 .markdown-body h2 {
   margin-top: 0px !important;
 }
+
+.katex {
+  color: #e0e0e0; 
+  font-size: 1.1em;
+}
+
+.katex-display {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
