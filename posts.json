@@ -3,6 +3,20 @@
     "year": "2026",
     "month": "03",
     "day": "31",
+    "slug": "Advent-of-Compiler-Optimisations-Study-Notes-09",
+    "tags": [
+      "AoCO2025",
+      "Compiler",
+      "x86"
+    ],
+    "originalName": "2026-03-31-Advent-of-Compiler-Optimisations-Study-Notes-09",
+    "title": "Advent of Compiler Optimisations Study Notes 09",
+    "date": "2026-03-31"
+  },
+  {
+    "year": "2026",
+    "month": "03",
+    "day": "31",
     "slug": "Advent-of-Compiler-Optimisations-Study-Notes-08",
     "tags": [
       "AoCO2025",
