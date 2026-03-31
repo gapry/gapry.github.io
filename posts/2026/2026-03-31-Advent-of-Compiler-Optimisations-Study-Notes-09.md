@@ -6,7 +6,7 @@ tags: AoCO2025, Compiler, x86
 
 These notes are based on the post [**Induction variables and loops**](https://xania.org/202512/09-induction-variables) and the YouTube video [**[AoCO 9/25] More Loops: Induction Variables**](https://www.youtube.com/watch?v=vZk7Br6Vh1U&list=PL2HVqYf7If8cY4wLk7JUQ2f0JXY_xMQm2&index=10) which are Day 9 of the [Advent of Compiler Optimisations 2025](https://xania.org/AoCO2025-archive) Series by [Matt Godbolt](https://xania.org/MattGodbolt).
 
-My notes focus on reproducing and verifying [Matt Godbolt](https://xania.org/MattGodbolt)'s teaching within a local development environment using `GNU toolchain` on `Ubuntu`.
+My notes focus on reproducing and verifying [Matt Godbolt](https://xania.org/MattGodbolt)'s teaching within a local development environment using `GNU toolchain` and `LLVM toolchain` on `Ubuntu`.
 
 Written by me and assisted by AI, proofread by me and assisted by AI. 
 
