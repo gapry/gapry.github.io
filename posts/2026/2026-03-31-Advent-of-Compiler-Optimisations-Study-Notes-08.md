@@ -30,14 +30,14 @@ Ubuntu LLVM version 18.1.8
 
 ## Introduction
 
-In this post, we will analyze two case: the Index-Based For-Loop and the Range-Base For-Loop.
-We use will `g++` and `clang++` to compile the same code, then utilize `llvm-objdump` and 
+In this post, we will analyze two cases: the Index-Based For-Loop and the Range-Base For-Loop.
+We will use `g++` and `clang++` to compile the same code, then utilize `llvm-objdump` and 
 `llvm-mca` to analyze their differences. Finally, we will compare their benchmark results.
 
 ## Case 01： Index-Based For-Loop
 
 We use `__asm__` markers **[1]** to define a specific code region for `llvm-mca`,
-allowing use to analyze the benchmark.
+allowing us to analyze the benchmark.
 
 ```bash
 $ cat sum1.cpp
@@ -186,7 +186,7 @@ IPC:               3.72
 Block RThroughput: 8.8
 ```
 
-#### Benchmark Comparion
+#### Benchmark Comparison
 | Metric            | `clang++` (based) | `g++`     | $\Delta$    |
 | :---------------- | :---------------: | :-------: | :----------:|
 | Instructions      |         3400      |   1300    | -61.76%     |
@@ -230,7 +230,7 @@ Although `clang++` demonstrates better IPC,
 ## Case 02: Range-based For-Loop
 
 Again, We use `__asm__` markers **[1]** to define a specific code region for `llvm-mca`,
-allowing use to analyze the benchmark.
+allowing us to analyze the benchmark.
 
 ```bash
 $ cat sum2.cpp
