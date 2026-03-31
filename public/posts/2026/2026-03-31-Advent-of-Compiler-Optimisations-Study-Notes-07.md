@@ -122,8 +122,8 @@ $$
 $$
 \begin{aligned}
 RHS &= \lfloor \frac{N \cdot M}{2^k} \rfloor \\
-    &= \lfloor \frac{100 \cdot 19999999A}{2^36} \rfloor \\
-    &= \lfloor \frac{687194767400}{2^36} \rfloor \\
+    &= \lfloor \frac{100 \cdot 19999999A}{2^{36}} \rfloor \\
+    &= \lfloor \frac{687194767400}{2^{36}} \rfloor \\
     &= \lfloor 10.0000000006 \rfloor \\
     &= 10
 \end{aligned}
@@ -136,7 +136,7 @@ instead of our calculation result `36`.
 Similarly the magic number $M$ used by the compiler is `0xCCCCCCCD`
 instead of our calculation result `19999999A`.
 
-Since we know $35 < 36$ and $0xCCCCCCCD < 19999999A$, 
+Since we know $35 < 36$ and $CCCCCCCD < 19999999A$, 
 it is clear that while the formula provides a
 theoretical upper bound that guarantees correctness, 
 the compiler uses this bound as a starting point to find the minimal lower bound 
