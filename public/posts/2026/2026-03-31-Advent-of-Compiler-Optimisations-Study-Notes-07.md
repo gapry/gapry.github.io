@@ -134,7 +134,7 @@ Since $LHS = RHS$, the compiler optimization successfully avoids floating-point 
 According to the disassembly results, the actual $k$ used by the compiler is `35`
 instead of our calculation result `36`.
 Similarly the magic number $M$ used by the compiler is `0xCCCCCCCD`
-instead of our calculation result `19999999A`.
+instead of our calculation result `0x19999999A`.
 
 Since we know $35 < 36$ and $CCCCCCCD < 19999999A$, 
 it is clear that while the formula provides a
