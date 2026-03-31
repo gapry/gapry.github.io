@@ -15,11 +15,11 @@ Written by me and assisted by AI, proofread by me and assisted by AI.
 $ lsb_release -d
 Description:	Ubuntu 24.04.3 LTS
 
-$ clang++ --version
-Ubuntu clang version 18.1.8
-
 $ g++ --version
 g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+
+$ clang++ --version
+Ubuntu clang version 18.1.8
 
 $ llvm-objdump -v
 Ubuntu LLVM version 18.1.8
@@ -28,7 +28,16 @@ $ llvm-mca --version
 Ubuntu LLVM version 18.1.8
 ```
 
-## Case 01
+## Introduction
+
+In this post, we will analyze two case: the Index-Based For-Loop and the Range-Base For-Loop.
+We use will `g++` and `clang++` to compile the same code, then utilize `llvm-objdump` and 
+`llvm-mca` to analyze their differences. Finally, we will compare their benchmark results.
+
+## Case 01： Index-Based For-Loop
+
+We use `__asm__` markers **[1]** to define a specific code region for `llvm-mca`,
+allowing use to analyze the benchmark.
 
 ```bash
 $ cat sum1.cpp
@@ -178,7 +187,7 @@ Block RThroughput: 8.8
 ```
 
 #### Benchmark Comparion
-| Metric            | `clang++` (based) | `g++`     | Comparison  |
+| Metric            | `clang++` (based) | `g++`     | $\Delta$    |
 | :---------------- | :---------------: | :-------: | :----------:|
 | Instructions      |         3400      |   1300    | -61.76%     |
 | Total Cycles      |          914      |    362    | -60.39%     |
@@ -188,13 +197,41 @@ Block RThroughput: 8.8
 | Block RThroughput |          8.8      |    3.5    | -60.23%     |
 | Dispatch Width    |           4       |     4     | 0.00%       |
 
-Remark:
+Relative Difference $\Delta$ is calculated as:
 $$
-\text{Comparison} = \left( \frac{\text{Value}_{\text{g++}} - \text{Value}_{\text{clang++}}}
-  {\text{Value}_{\text{clang++}}} \right) \times 100\%
+\Delta = \left( \frac{\text{Metric}_{\text{g++}} - \text{Metric}_{\text{clang++}}}
+  {\text{Metric}_{\text{clang++}}} \right) \times 100\%
 $$
 
-## Case 02
+##### Instructions
+`clang++` generates `3400` instructions, `g++` generates only `1300`.
+This means `g++` can produce an executable with a smaller code size.
+
+##### Total Cycles
+`clang++` consumes `914` cycles, `g++` requires only `362`.
+This means `g++` completes the task 60.39% faster for this iteration count.
+
+##### Total uOps (Micro-operations)
+`clang++` produces `3500` uOps, g++ generates only `1400`, 
+showing that `g++` places a significantly lighter load on the CPU execution engine.
+
+##### IPC (Instructions Per Cycle)
+`clang++` achieves `3.72` IPC, g++ achieves `3.59`,
+indicating that `clang++` more effectively saturates the processor's pipeline per clock cycle.
+
+##### Block RThroughput
+`clang++` requires `8.8` cycles per block, `g++` only needs `3.5`,
+proving that `g++` offers higher throughput
+
+#### Conclusion
+Although `clang++` demonstrates better IPC, 
+`g++` is overall better in this case.
+
+## Case 02: Range-based For-Loop
+
+Again, We use `__asm__` markers **[1]** to define a specific code region for `llvm-mca`,
+allowing use to analyze the benchmark.
+
 ```bash
 $ cat sum2.cpp
 ```
@@ -320,6 +357,9 @@ Disassembly of section .text:
 
 ```bash
 $ clang++ -O2 -S sum2.cpp -o sum2.s
+```
+
+```bash
 $ llvm-mca -march=x86-64 -mcpu=x86-64 -timeline sum2.s
 ```
 
@@ -331,5 +371,15 @@ sum2.s:67:3: note: unable to find an active anonymous region
         # LLVM-MCA-END
 ```
 
+```bash
+$ grep -n "LLVM-MCA" sum2.s
+10:     # LLVM-MCA-BEGIN
+29:     # LLVM-MCA-END
+67:     # LLVM-MCA-END
+```
+
+I have spent time trying to find the cause of the above error, but have not been able to identify it. 
+I am therefore recording it here and will update this post if I find the reason later.
+
 ## References
-- https://llvm.org/docs/CommandGuide/llvm-mca.html
+[1] https://llvm.org/docs/CommandGuide/llvm-mca.html
