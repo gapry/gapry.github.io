@@ -109,10 +109,6 @@ $ llvm-objdump -d --disassemble-symbols=sum --x86-asm-syntax=att main.o
 ```
 
 ```x86asm
-main.o: file format elf64-x86-64
-
-Disassembly of section .text:
-
 0000000000000000 <sum>:
  0: f3 0f 1e fa          endbr64
  4: 8b 07                movl    (%rdi), %eax        ; Load a[0] into %eax outside the loop
