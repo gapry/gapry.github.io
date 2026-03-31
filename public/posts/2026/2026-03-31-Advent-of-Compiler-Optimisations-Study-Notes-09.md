@@ -24,9 +24,23 @@ Ubuntu LLVM version 18.1.8
 
 ## Introduction
 
-An 
+This note introduces a loop optimization known as `Induction Variable Elimination` **[1]**.
 
-## Part 01: Multiplication Approach
+The core concept is analogous to an `arithmetic sequence` **[2]**.
+
+The closed-form expression $a_n = a_1 + (n - 1) d$ is mathematically equivalent to the 
+
+recursive definition $a_{n + 1} = a_{n} + d$
+
+To verify whether a compiler performs induction variable optimization, we compare two implementations:
+
+1. A loop using the formula $a_n = a_1 + (n - 1) d$
+2. A loop using the formula $a_{n + 1} = a_{n} + d$
+
+If the compiler successfully applies this optimization, 
+the resulting disassembly for both implementations should be identical.
+
+## Part 01: Closed-Form Expression
 
 $$
 a_n = a_1 + (n - 1) d
@@ -70,10 +84,10 @@ $ llvm-objdump -d --disassemble-symbols=sum --x86-asm-syntax=att main.o
 25: c3                   retq
 ```
 
-## Part 02 : Addition Approach 
+## Part 02 : Recursive Definition
 
 $$
-a_{n + } = a_{n} + d
+a_{n + 1} = a_{n} + d
 $$
 
 ```bash
@@ -119,4 +133,11 @@ Disassembly of section .text:
 ```
 
 ## Conclusion
-We can see the disasm result is same. That is Induction Variables.
+The disassembly results for both implementations are identical.
+This confirms that the compiler successfully performs Induction Variable Elimination.
+It recognizes the linear relationship within the loop and optimizes 
+the multiplication into an incremental addition.
+
+## References
+1. https://en.wikipedia.org/wiki/Induction_variable
+2. https://en.wikipedia.org/wiki/Arithmetic_progression
