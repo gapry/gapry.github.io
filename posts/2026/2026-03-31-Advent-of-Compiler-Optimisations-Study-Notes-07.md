@@ -136,7 +136,7 @@ instead of our calculation result `36`.
 Similarly the magic number $M$ used by the compiler is `0xCCCCCCCD`
 instead of our calculation result `0x19999999A`.
 
-Since we know $35 < 36$ and $CCCCCCCD < 19999999A$, 
+Since we know `35 < 36` and `0xCCCCCCCD < 0x19999999A`, 
 it is clear that while the formula provides a
 theoretical upper bound that guarantees correctness, 
 the compiler uses this bound as a starting point to find the minimal lower bound 
