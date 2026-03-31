@@ -1,5 +1,5 @@
 ---
-tags: compiler, arm
+tags: AoCO2025, Compiler, arm
 ---
 
 ## Study Notes: ARM's barrel shifter tricks, Advent of Compiler Optimisations 2025
