@@ -1,5 +1,5 @@
 ---
-tags: compiler, x86
+tags: AoCO2025, Compiler, x86
 ---
 
 ## Study Notes: Multiplying with a constant, Advent of Compiler Optimisations 2025

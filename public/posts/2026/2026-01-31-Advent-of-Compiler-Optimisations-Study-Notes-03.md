@@ -1,5 +1,5 @@
 ---
-tags: compiler, arm
+tags: AoCO2025, Compiler, arm
 ---
 
 ## Study Notes: You can't fool the optimiser, Advent of Compiler Optimisations 2025
