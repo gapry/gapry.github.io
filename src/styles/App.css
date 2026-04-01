@@ -14,11 +14,15 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box; 
+  overflow-x: hidden;
 }
 
 .main-container {
   flex: 1; 
   width: 100%;
+  min-width: 0;
 }
 
 a {
@@ -57,10 +61,12 @@ a:hover {
 }
 
 .markdown-body table {
+  display: block;
   width: 100%;
   border-collapse: collapse;
   margin: 20px 0;
   font-size: 0.95rem;
+  overflow-x: hidden;
 }
 
 .markdown-body th, .markdown-body td {
@@ -91,6 +97,11 @@ a:hover {
   background-color: transparent !important;
   border: none !important;
   padding: 0 !important;
+  max-width: 100%;
+  white-space: pre;
+  overflow-x: auto !important;
+  scrollbar-width: none !important; 
+  -ms-overflow-style: none !important;
 }
 
 .markdown-body pre code {
@@ -99,11 +110,23 @@ a:hover {
   color: #e0e0e0;
 }
 
-.markdown-body pre::-webkit-scrollbar {
-  display: none;
+.markdown-body pre::-webkit-scrollbar,
+.markdown-body div::-webkit-scrollbar,
+.markdown-body code::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
-.markdown-body pre {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+.markdown-body pre,
+.markdown-body div,
+.markdown-body code {
+  scrollbar-width: none !important;
+}
+
+.markdown-body pre,
+.markdown-body div,
+.markdown-body code {
+  -ms-overflow-style: none !important;
 }
