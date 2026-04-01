@@ -49,7 +49,8 @@
     "tags": [
       "AoCO2025",
       "Compiler",
-      "x86"
+      "x86",
+      "arm"
     ],
     "originalName": "2026-02-28-Advent-of-Compiler-Optimisations-Study-Notes-06",
     "title": "Advent of Compiler Optimisations Study Notes 06",

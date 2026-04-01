@@ -1,5 +1,5 @@
 ---
-tags: AoCO2025, Compiler, x86
+tags: AoCO2025, Compiler, x86, arm
 ---
 
 ## Study Notes: Division, Advent of Compiler Optimisations 2025
@@ -44,7 +44,7 @@ int div(int x) {
 $ rm -f (path filter *.o); clang -O2 -c div.c; llvm-objdump -d --x86-asm-syntax=att div.o
 ```
 
-```text
+```x86asm
 div.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -58,12 +58,12 @@ Disassembly of section .text:
 ```
 
 Instructions:
-```text
-- leal    <offset>(<base>), <Rd> ; <Rd>   = offset + base
-- cmovnsl <Rs>, <Rd>             ; cmov   = conditional move
-                                 ; ns     = Not Signed
-                                 ; cmovns = Conditional Move if Not Sign
-- sarl    <imm>, <Rd>            ; sar    = Shift Arithmetic Right
+```x86asm
+leal    <offset>(<base>), <Rd> ; <Rd>   = offset + base
+cmovnsl <Rs>, <Rd>             ; cmov   = conditional move
+                               ; ns     = Not Signed
+                               ; cmovns = Conditional Move if Not Sign
+sarl    <imm>, <Rd>            ; sar    = Shift Arithmetic Right
 ```
 
 In C, signed integer division truncates toward zero. For example:
@@ -141,7 +141,7 @@ unsigned div(unsigned x) {
 $ rm -f (path filter *.o); clang -O2 -c div.c; llvm-objdump -d --x86-asm-syntax=att div.o
 ```
 
-```text
+```x86asm
 div.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -185,7 +185,7 @@ int div(int x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c div.c; llvm-objdump -d div.o
 ```
 
-```text
+```armasm
 div.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -201,13 +201,13 @@ Disassembly of section .text:
 The reason is the same as in the previous x86 case, we need to know why we need to use `0x1FF`.
 
 Instructions:
-```text
-- add <Wd>, <Wn>, #imm          ; w8 = w0 + 0x1ff
-- cmp <Wn>, #imm                ; Compares w0 with #0x0, and update the processor flags NZCV
-- csel <Wd>, <Wn>, <Wm>, <cond> ; Conditional Select. 
-                                ; If the condition lt (Less Than) is true, it selects w8; 
-                                ; otherwise, it selects w0.
-- asr <Wd>, <Wn>, #imm          : Arithmetic Shift Right, w0 = w8 >> 9
+```armasm
+add <Wd>, <Wn>, #imm          ; w8 = w0 + 0x1ff
+cmp <Wn>, #imm                ; Compares w0 with #0x0, and update the processor flags NZCV
+csel <Wd>, <Wn>, <Wm>, <cond> ; Conditional Select. 
+                              ; If the condition lt (Less Than) is true, it selects w8; 
+                              ; otherwise, it selects w0.
+asr <Wd>, <Wn>, #imm          : Arithmetic Shift Right, w0 = w8 >> 9
 ```
 
 | Flag  | Name     | Bit | Description (when set to 1)                                 |
@@ -232,7 +232,7 @@ unsigned div(unsigned x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c div.c; llvm-objdump -d div.o
 ```
 
-```text
+```armasm
 div.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -243,7 +243,7 @@ Disassembly of section .text:
 ```
 
 Instruction: 
-```text
+```armasm
 lsr <Wd>, <Wn>, #imm ; Logical Shift Right, that is w0 = w0 >> 9.
 ```
 
