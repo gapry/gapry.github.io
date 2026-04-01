@@ -56,7 +56,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
 ```
 
-```text
+```armasm
 mul.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -88,7 +88,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
 ```
 
-```text
+```armasm
 mul.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -120,7 +120,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
 ```
 
-```text
+```armasm
 mul.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -132,8 +132,10 @@ Disassembly of section .text:
 ```
 
 ARM Instructions: 
-- `add <Rd>, <Rn>, <Rm>, lsl #<shift>`
-- `lsl <Rd>, <Rn>, #<shift>`
+```armasm
+add <Rd>, <Rn>, <Rm>, lsl #<shift>
+lsl <Rd>, <Rn>, #<shift>
+```
 
 The multiplication of 6x is decomposed into two discrete stages. 
 First, the compiler calculates `w8 = w0 + (w0 << 1) = w0 + 2 * w0 = 3 * w0`. 
@@ -155,7 +157,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
 ```
 
-```text
+```armasm
 mul.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -167,8 +169,10 @@ Disassembly of section .text:
 ```
 
 ARM Instructions: 
-- `lsl <Rd>, <Rn>, #<shift>`
-- `sub <Rd>, <Rn>, <Rm>`
+```armasm
+lsl <Rd>, <Rn>, #<shift>
+sub <Rd>, <Rn>, <Rm>
+```
 
 The compiler implements a shift-and-subtract strategy for constants near powers of two. 
 To compute `7x`, it first executes `w8 = w0 << 3 = 8 * w0` 
@@ -190,7 +194,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
 ```
 
-```text
+```armasm
 mul.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -202,14 +206,16 @@ Disassembly of section .text:
 ```
 
 ARM Instructions:
-- `mov <Rd>, <Imm>`
-- `mul <Rd>, <Rn>, <Rm>`
+```armasm
+mov <Rd>, <Imm>
+mul <Rd>, <Rn>, <Rm>
+```
 
 The compiler defaults to the `mul` instruction because decomposing the constant `11` cannot be achieved in only two instructions.
 
 If the compiler were to adopt a manual shift-and-subtract strategy, 
 the code generator would need to output three instructions:
-```text
+```armasm
 add w8, w0, w0, lsl 1    // w8 = x + 2x = 3x
 lsl w8, w8, #2           // w8 = w8 << 2 = 3x << 2 = 3x * 4 = 12x
 sub w0, w8, w0           // w0 = 12x - x = 11x
@@ -233,7 +239,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -target aarch64-linux-gnu -c mul.c; llvm-objdump -d mul.o
 ```
 
-```text
+```armasm
 mul.o:  file format elf64-littleaarch64
 
 Disassembly of section .text:
@@ -245,8 +251,10 @@ Disassembly of section .text:
 ```
 
 ARM Instructions:
-- `lsl <Rd>, <Rn>, #<shift>`
-- `sub <Rd>, <Rn>, <Rm>, lsl #<shift>`
+```armasm
+lsl <Rd>, <Rn>, #<shift>
+sub <Rd>, <Rn>, <Rm>, lsl #<shift>
+```
 
 The computation of 14x demonstrates the flexibility of the sub instruction with shifted operands. 
 The compiler first calculates `w8 = w0 << 4 = 16 * w0`. 

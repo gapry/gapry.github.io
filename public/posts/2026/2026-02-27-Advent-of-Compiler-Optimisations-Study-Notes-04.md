@@ -54,7 +54,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -88,7 +88,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -116,7 +116,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -145,7 +145,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -186,7 +186,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -215,7 +215,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -245,7 +245,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -275,7 +275,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -309,7 +309,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -340,7 +340,7 @@ int mul(int x) {
 $ rm -f (path filter *.o); clang -O2 -c mul.c; llvm-objdump -d --x86-asm-syntax=att mul.o
 ```
 
-```text
+```x86asm
 mul.o:  file format elf64-x86-64
 
 Disassembly of section .text:

@@ -52,7 +52,7 @@ int add(int x, int y) {
 $ rm -f (path filter *.o); clang -O0 -c add.c; llvm-objdump -d --x86-asm-syntax=att add.o
 ```
 
-```bash
+```x86asm
 add.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -78,7 +78,7 @@ the compiler cannot translate `a = b + c` directly to a single `add` instruction
 value of `b` or `c` before the operation is executed, the compiler needs to use `mov` instruction to 
 initialize the destination with one of the operands first:
 
-```bash
+```x86asm
 movl    -0x4(%rbp), %eax
 addl    -0x8(%rbp), %eax
 ```
@@ -90,7 +90,7 @@ Hence, the compiler needs to use two instructions to execute the addition at the
 rm -f (path filter *.o); clang -O2 -c add.c; llvm-objdump -d --x86-asm-syntax=att add.o
 ```
 
-```bash
+```x86asm
 add.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -115,7 +115,7 @@ and the other employing a single `lea` instruction.
 $ nvim add.s
 ```
 
-```text
+```x86asm
 .section .note.GNU-stack, "", @progbits
 
 .section .rodata

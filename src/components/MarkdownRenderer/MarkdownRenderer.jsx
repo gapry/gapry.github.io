@@ -3,9 +3,41 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Prism as PrismHighlighter } from 'react-syntax-highlighter';
+import { Light as HLJSHighlighter } from 'react-syntax-highlighter';
+import { atomDark as PrismStyles } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { darcula as HLJSStyles } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import './MarkdownRenderer.css'
+
+import x86asm from 'react-syntax-highlighter/dist/esm/languages/hljs/x86asm';
+import armasm from 'react-syntax-highlighter/dist/esm/languages/hljs/armasm';
+
+HLJSHighlighter.registerLanguage('x86asm', x86asm);
+HLJSHighlighter.registerLanguage('armasm', armasm);
+
+const HLJS_LANGS = ['x86asm', 'armasm'];
+
+const HLJSCodeBlock = ({ language, content, ...props }) => (
+  <HLJSHighlighter
+    style={HLJSStyles}
+    language={language}
+    PreTag="div"
+    {...props}
+  >
+    {content}
+  </HLJSHighlighter>
+);
+
+const PrismCodeBlock = ({ language, content, ...props }) => (
+  <PrismHighlighter
+    style={PrismStyles}
+    language={language}
+    PreTag="div"
+    {...props}
+  >
+    {content}
+  </PrismHighlighter>
+);
 
 const CodeBlock = ({ inline, className, children, ...props }) => {
   const match = /language-(\w+)/.exec(className || '');
@@ -13,17 +45,11 @@ const CodeBlock = ({ inline, className, children, ...props }) => {
   if (!inline && match) {
     const language = match[1];
     const content  = String(children).replace(/\n$/, '');
+    
+    const isHLJS    = HLJS_LANGS.includes(language);
+    const Component = isHLJS ? HLJSCodeBlock : PrismCodeBlock;
 
-    return (
-      <SyntaxHighlighter
-        style={vscDarkPlus}
-        language={language}
-        PreTag="div"
-        {...props}
-      >
-        {content}
-      </SyntaxHighlighter>
-    );
+    return <Component language={language} content={content} {...props} />;
   }
 
   return (
