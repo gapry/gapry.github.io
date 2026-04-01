@@ -5,7 +5,7 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { Prism as PrismHighlighter } from 'react-syntax-highlighter';
 import { Light as HLJSHighlighter } from 'react-syntax-highlighter';
-import { atomDark as PrismStyles } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vscDarkPlus as PrismStyles } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { darcula as HLJSStyles } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import './MarkdownRenderer.css'
 
@@ -15,7 +15,7 @@ import armasm from 'react-syntax-highlighter/dist/esm/languages/hljs/armasm';
 HLJSHighlighter.registerLanguage('x86asm', x86asm);
 HLJSHighlighter.registerLanguage('armasm', armasm);
 
-const HLJS_LANGS = ['x86asm', 'armasm'];
+const HLJS_LANGS = []; // ['x86asm', 'armasm'];
 
 const HLJSCodeBlock = ({ language, content, ...props }) => (
   <HLJSHighlighter
