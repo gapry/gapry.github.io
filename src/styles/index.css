@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  display: flex;
+  display: block;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
@@ -13,5 +13,13 @@ body {
   body {
     background-color: #1a1a1a;
     color: #f0f0f0;
+  }
+}
+
+@media (min-width: 801px) {
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
