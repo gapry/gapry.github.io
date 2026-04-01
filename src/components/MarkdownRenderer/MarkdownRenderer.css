@@ -13,16 +13,23 @@
   line-height: 1;
 }
 
-.tag-pill {
+.blog-post-tags {
   font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 0.8rem;
   background: #252525;
-  color: #1890ff;
+  color: #c04d4d;
   padding: 4px 10px;
   border-radius: 4px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+}
+
+.blog-post-tags:hover {
+  background: #121212;
+  color: #ff4d4f;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .markdown-body h2 {
