@@ -64,7 +64,7 @@ int main() {
 $ rm -f (path filter *.o); gcc -O0 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 ```
 
-```bash
+```x86asm
 main.o: file format elf64-x86-64
 
 Disassembly of section .text:
@@ -90,11 +90,11 @@ text	   data	    bss	    dec	    hex	filename
 As `-O0`, the compiler generates a stack frame, leading to unnecessary instruction overhead. 
 
 ###### Use `-O1` as optimization level
-```
+```bash
 $ rm -f (path filter *.o); gcc -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 ```
 
-```bash
+```x86asm
 main.o: file format elf64-x86-64
 
 Disassembly of section .text:
@@ -121,7 +121,7 @@ It reduces the output from six instructions to three by removing the stack frame
 $ rm -f (path filter *.o); gcc -O2 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 ```
 
-```bash
+```x86asm
 main.o: file format elf64-x86-64
 
 Disassembly of section .text:
@@ -154,7 +154,9 @@ $ rm -f (path filter *.o); clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax
 
 ```bash
 rm -f (path filter *.o); clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
+```
 
+```x86asm
 main.o: file format elf64-x86-64
 
 Disassembly of section .text:
@@ -183,7 +185,7 @@ long get_val() {
 $ rm -f (path filter *.o); clang -O2 -c get_val.c; llvm-objdump -d --x86-asm-syntax=att get_val.o
 ```
 
-```bash
+```x86asm
 get_val.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -278,7 +280,7 @@ $ clang -O2 -c main.c
 $ llvm-objdump -d --disassemble-symbols=f --x86-asm-syntax=att main.o
 ```
 
-```bash
+```x86asm
 main.o:	file format elf64-x86-64
 
 Disassembly of section .text:

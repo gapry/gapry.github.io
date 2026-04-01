@@ -74,7 +74,7 @@ By disassembling the compiled object file, we can observe the magic number $M$ a
 clang -O2 -c main.c; llvm-objdump -d --disassemble-symbols=div10 --x86-asm-syntax=att main.o
 ```
 
-```
+```x86asm
 0000000000000040 <div10>:
     40: 89 f9            movl   %edi, %ecx
     42: b8 cd cc cc cc   movl   $0xcccccccd, %eax # Magic Number M = 0xCCCCCCCD
