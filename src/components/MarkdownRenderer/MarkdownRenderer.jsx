@@ -58,7 +58,7 @@ export default function MarkdownRenderer({ content }) {
         <div className="post-metadata">
           <div className="post-tags-row">
             {tags.map(tag => (
-              <a key={tag} href={`/tag/${tag}`} className="tag-pill">
+              <a key={tag} href={`/tag/${tag}`} className="blog-post-tags">
                 #{tag}
               </a>
             ))}
