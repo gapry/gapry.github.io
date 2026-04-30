@@ -68,6 +68,131 @@ $ rm -f *.out; clang++ -std=c++20 -o app.out main.cpp; ./app.out
 
 ## What is Loop unrolling
 
+
+#### Part 01
+```bash
+$ cat sum.cpp
+```
+
+```cpp
+int sum(int data[8]) {
+  int total = 0;
+  for (int i = 0; i < 8; i++) {
+    total += data[i];
+  }
+  return total;
+}
+```
+
+```bash
+$ clang++ -std=c++20 -O2 -fno-unroll-loops -fno-vectorize -mno-sse -mno-avx -c sum.cpp
+```
+
+```bash
+$ llvm-objdump -d --disassemble-symbols=$(nm sum.o | awk '/sum/ {print $3}') --x86-asm-syntax=intel sum.o
+```
+
+```txt
+sum.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <_Z3sumPi>:
+       0: 31 c9                         xor     ecx, ecx
+       2: 31 c0                         xor     eax, eax
+       4: 66 66 66 2e 0f 1f 84 00 00 00 00 00   nop     word ptr cs:[rax + rax]
+      10: 03 04 8f                      add     eax, dword ptr [rdi + 4*rcx]
+      13: 48 ff c1                      inc     rcx
+      16: 48 83 f9 08                   cmp     rcx, 0x8
+      1a: 75 f4                         jne     0x10 <_Z3sumPi+0x10>
+      1c: c3                            ret
+```
+
+#### Part 02
+```bash
+$ cat sum.cpp
+```
+
+```cpp
+int sum(int data[8]) {
+  int total = 0;
+  total += data[0];
+  total += data[1];
+  total += data[2];
+  total += data[3];
+  total += data[4];
+  total += data[5];
+  total += data[6];
+  total += data[7];
+  return total;
+}
+```
+
+```bash
+$ clang++ -std=c++20 -O2 -fno-unroll-loops -fno-vectorize -mno-sse -mno-avx -c sum.cpp
+```
+
+```bash
+$ llvm-objdump -d --disassemble-symbols=$(nm sum.o | awk '/sum/ {print $3}') --x86-asm-syntax=intel sum.o
+```
+
+```text
+sum.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <_Z3sumPi>:
+       0: 8b 47 04                      mov     eax, dword ptr [rdi + 0x4]
+       3: 03 07                         add     eax, dword ptr [rdi]
+       5: 03 47 08                      add     eax, dword ptr [rdi + 0x8]
+       8: 03 47 0c                      add     eax, dword ptr [rdi + 0xc]
+       b: 03 47 10                      add     eax, dword ptr [rdi + 0x10]
+       e: 03 47 14                      add     eax, dword ptr [rdi + 0x14]
+      11: 03 47 18                      add     eax, dword ptr [rdi + 0x18]
+      14: 03 47 1c                      add     eax, dword ptr [rdi + 0x1c]
+      17: c3                            ret
+```
+
+#### Part 03
+```bash
+$ cat sum.cpp
+```
+
+```cpp
+int sum(int data[8]) {
+  int total = 0;
+  for (int i = 0; i < 8; i++) {
+    total += data[i];
+  }
+  return total;
+}
+```
+
+```bash
+$ clang++ -std=c++20 -O2 -fno-vectorize -mno-sse -mno-avx -c sum.cpp
+```
+
+```bash
+$ llvm-objdump -d --disassemble-symbols=$(nm sum.o | awk '/sum/ {print $3}') --x86-asm-syntax=intel sum.o
+```
+
+```text
+sum.o:  file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <_Z3sumPi>:
+       0: 8b 47 04                      mov     eax, dword ptr [rdi + 0x4]
+       3: 03 07                         add     eax, dword ptr [rdi]
+       5: 03 47 08                      add     eax, dword ptr [rdi + 0x8]
+       8: 03 47 0c                      add     eax, dword ptr [rdi + 0xc]
+       b: 03 47 10                      add     eax, dword ptr [rdi + 0x10]
+       e: 03 47 14                      add     eax, dword ptr [rdi + 0x14]
+      11: 03 47 18                      add     eax, dword ptr [rdi + 0x18]
+      14: 03 47 1c                      add     eax, dword ptr [rdi + 0x1c]
+      17: c3                            ret
+```
+
 ## Case Study
 
 #### Case01
