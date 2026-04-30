@@ -26,6 +26,10 @@ radare2 5.5.0 0 @ linux-x86-64 git.5.5.0
 ```
 
 ## What is span
+
+Let's do a quick introduction of `std::span` first.
+It provides a uniform interface for contiguous sequences of objects like vectors, arrays, or raw C-style arrays.
+
 ```bash
 $ cat main.cpp
 ```
@@ -68,8 +72,14 @@ $ rm -f *.out; clang++ -std=c++20 -o app.out main.cpp; ./app.out
 
 ## What is Loop unrolling
 
+Loop unrolling can reduce the overhead by decreasing the number of iterations and branch instructions.
 
-#### Part 01
+To force on loop unrolling, we will disable the SIMD by `-fno-vectorize -mno-sse -mno-avx` in the following example.
+
+#### Part 01 : Standard Loop
+
+It is the standard for-loop and corresponding assembly.
+
 ```bash
 $ cat sum.cpp
 ```
@@ -108,7 +118,10 @@ Disassembly of section .text:
       1c: c3                            ret
 ```
 
-#### Part 02
+#### Part 02 : Manual Unrolling
+
+We can manually unroll the loop using the following way.
+
 ```bash
 $ cat sum.cpp
 ```
@@ -153,7 +166,12 @@ Disassembly of section .text:
       17: c3                            ret
 ```
 
-#### Part 03
+#### Part 03 : Use Compiler to do the Loop Unrolling
+
+In previous examples, we use `-fno-unroll-loops` to disable the compiler from doing the loop unrolling.
+
+For now, we enable it and see the output assembly is as same as the part02, which manually unrolled in C code.
+
 ```bash
 $ cat sum.cpp
 ```
@@ -283,3 +301,8 @@ $ radare2 -q -e bin.cache=true -c "aa; pdf" sum.o
 │           0x08000054      03471c         add eax, dword [rdi + 0x1c] ; arg1
 └           0x08000057      c3             ret
 ```
+
+## Conclusion
+Use Radare2 to visualize the assembly with control flow. 
+We can see the compiler does the optimization of loop unrolling 
+to remove the branch instruction to reduce the overhead.
