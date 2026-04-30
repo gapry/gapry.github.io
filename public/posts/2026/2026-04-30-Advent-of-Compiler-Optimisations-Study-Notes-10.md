@@ -26,6 +26,45 @@ radare2 5.5.0 0 @ linux-x86-64 git.5.5.0
 ```
 
 ## What is span
+```bash
+$ cat main.cpp
+```
+
+```cpp
+#include <span>
+#include <vector>
+#include <array>
+#include <iostream>
+
+template<typename T>
+auto sum(T&& dataset) {
+  std::span s{dataset};
+  using U = typename decltype(s)::value_type;
+  U total{};
+  for (const auto& val : s) {
+    total += val;
+  }
+  return total;
+}
+
+int main() {
+  std::vector<int> xs = {1, 2, 3, 4, 5};
+  std::array<float, 3> ys = {4.5f, 5.6f, 6.7f};
+  double zs[] = {7.8, 8.9, 9.10, 10.11, 11.12};
+
+  std::cout << sum(xs) << "\n";
+  std::cout << sum(ys) << "\n";
+  std::cout << sum(zs) << "\n";
+  return 0;
+}
+```
+
+```bash
+$ rm -f *.out; clang++ -std=c++20 -o app.out main.cpp; ./app.out
+15
+16.8
+47.03
+```
 
 ## What is Loop unrolling
 
