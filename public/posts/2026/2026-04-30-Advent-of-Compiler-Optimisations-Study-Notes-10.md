@@ -213,7 +213,13 @@ Disassembly of section .text:
 
 ## Case Study
 
-#### Case01
+We compare the `std::span<int>` and `std::span<int, 8>` in formal parameters to see how the compiler
+performs  loop unrolling when the size is fixed at compile-time.
+
+#### Case01 : `std::span<int>`
+
+In this case, the span size is unknown hence the compiler generated the standard loop assembly code.
+
 ```bash
 $ cat sum.cpp
 ```
@@ -260,7 +266,10 @@ $ radare2 -q -e bin.cache=true -c "aa; pdf" sum.o
 └           0x0800005f      c3             ret
 ```
 
-#### Case02
+#### Case02 : `std::span<int, 8>`
+
+In this case, the span size is defined hence the compiler can perform the loop unrolling.
+
 ```bash
 $ cat sum.cpp
 ```
