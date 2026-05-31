@@ -152,6 +152,6 @@ $ llvm-objdump -d --disassemble-symbols=count_set_bits --x86-asm-syntax=att app.
     118a: c3                            retq
 ```
 
-As we can see, both `clang` and `gcc` can turn the entire loop into a single hardware instruction, 
+As you can see, both `clang` and `gcc` can turn the entire loop into a single hardware instruction, 
 eliminating the loop and branch entirely.
 
