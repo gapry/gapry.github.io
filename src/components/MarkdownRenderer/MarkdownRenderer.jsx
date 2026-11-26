@@ -3,30 +3,20 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { Prism as PrismHighlighter } from 'react-syntax-highlighter';
-import { Light as HLJSHighlighter } from 'react-syntax-highlighter';
+import { Prism as PrismHighlighter, PrismLight } from 'react-syntax-highlighter';
 import { vscDarkPlus as PrismStyles } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { darcula as HLJSStyles } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import x86asm from './prism/x86asm';
+import armasm from './prism/armasm';
+import radare2 from './prism/radare2';
 import './MarkdownRenderer.css'
 
-import x86asm from 'react-syntax-highlighter/dist/esm/languages/hljs/x86asm';
-import armasm from 'react-syntax-highlighter/dist/esm/languages/hljs/armasm';
+PrismLight.registerLanguage(x86asm.displayName, x86asm);
+PrismLight.registerLanguage(armasm.displayName, armasm);
+PrismLight.registerLanguage(radare2.displayName, radare2);
 
-HLJSHighlighter.registerLanguage('x86asm', x86asm);
-HLJSHighlighter.registerLanguage('armasm', armasm);
-
-const HLJS_LANGS = []; // ['x86asm', 'armasm'];
-
-const HLJSCodeBlock = ({ language, content, ...props }) => (
-  <HLJSHighlighter
-    style={HLJSStyles}
-    language={language}
-    PreTag="div"
-    {...props}
-  >
-    {content}
-  </HLJSHighlighter>
-);
+const LANGUAGE_OVERRIDES = {
+  armasm: armasm.displayName,
+};
 
 const PrismCodeBlock = ({ language, content, ...props }) => (
   <PrismHighlighter
@@ -43,13 +33,10 @@ const CodeBlock = ({ inline, className, children, ...props }) => {
   const match = /language-(\w+)/.exec(className || '');
 
   if (!inline && match) {
-    const language = match[1];
+    const language = LANGUAGE_OVERRIDES[match[1]] || match[1];
     const content  = String(children).replace(/\n$/, '');
-    
-    const isHLJS    = HLJS_LANGS.includes(language);
-    const Component = isHLJS ? HLJSCodeBlock : PrismCodeBlock;
 
-    return <Component language={language} content={content} {...props} />;
+    return <PrismCodeBlock language={language} content={content} {...props} />;
   }
 
   return (

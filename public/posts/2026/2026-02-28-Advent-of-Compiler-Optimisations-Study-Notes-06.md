@@ -154,7 +154,7 @@ Disassembly of section .text:
 ```
 
 Instruction: 
-```text
+```x86asm
 shrl <imm>, <Rd> ; shr := Shift Right Logical, that is <Rd> = <Rd> >> <imm>
 ```
 
@@ -208,7 +208,7 @@ cmp <Wn>, #imm                ; Compares w0 with #0x0, and update the processor 
 csel <Wd>, <Wn>, <Wm>, <cond> ; Conditional Select. 
                               ; If the condition lt (Less Than) is true, it selects w8; 
                               ; otherwise, it selects w0.
-asr <Wd>, <Wn>, #imm          : Arithmetic Shift Right, w0 = w8 >> 9
+asr <Wd>, <Wn>, #imm          ; Arithmetic Shift Right, w0 = w8 >> 9
 ```
 
 | Flag  | Name     | Bit | Description (when set to 1)                                 |

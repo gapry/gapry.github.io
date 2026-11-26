@@ -61,7 +61,7 @@ $ rm -f app.out && clang -O2 -o app.out main.c
 $ llvm-objdump -d --disassemble-symbols=count_set_bits --x86-asm-syntax=att app.out
 ```
 
-```text
+```x86asm
 0000000000001140 <count_set_bits>:
     1140: 31 c0                         xorl    %eax, %eax
     1142: 85 ff                         testl   %edi, %edi
@@ -81,7 +81,7 @@ $ rm -f app.out && gcc -O2 -o app.out main.c
 $ llvm-objdump -d --disassemble-symbols=count_set_bits --x86-asm-syntax=att app.out
 ```
 
-```text
+```x86asm
 0000000000001180 <count_set_bits>:
     1180: f3 0f 1e fa                   endbr64
     1184: 31 c0                         xorl    %eax, %eax
@@ -134,7 +134,7 @@ $ rm -f app.out && clang -O2 -mpopcnt -o app.out main.c
 $ llvm-objdump -d --disassemble-symbols=count_set_bits --x86-asm-syntax=att app.out
 ```
 
-```text
+```x86asm
 0000000000001140 <count_set_bits>:
     1140: f3 0f b8 c7                   popcntl %edi, %eax
     1144: c3                            retq
@@ -146,7 +146,7 @@ $ rm -f app.out && gcc -O2 -mpopcnt -o app.out main.c
 $ llvm-objdump -d --disassemble-symbols=count_set_bits --x86-asm-syntax=att app.out
 ```
 
-```text
+```x86asm
 0000000000001180 <count_set_bits>:
     1180: f3 0f 1e fa                   endbr64
     1184: 31 c0                         xorl    %eax, %eax

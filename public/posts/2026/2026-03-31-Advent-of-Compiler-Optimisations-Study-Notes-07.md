@@ -72,7 +72,7 @@ unsigned div10(unsigned x) {
 By disassembling the compiled object file, we can observe the magic number $M$ and the shift operation.
 
 ```bash
-clang -O2 -c main.c; llvm-objdump -d --disassemble-symbols=div10 --x86-asm-syntax=att main.o
+$ clang -O2 -c main.c; llvm-objdump -d --disassemble-symbols=div10 --x86-asm-syntax=att main.o
 ```
 
 ```x86asm

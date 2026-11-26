@@ -105,6 +105,30 @@
   display: none;
 }
 
+.markdown-body .ansi-green {
+  color: var(--color-ansi-green);
+}
+
+.markdown-body .ansi-red {
+  color: var(--color-ansi-red);
+}
+
+.markdown-body .ansi-yellow {
+  color: var(--color-ansi-yellow);
+}
+
+.markdown-body .ansi-blue {
+  color: var(--color-ansi-blue);
+}
+
+.markdown-body .ansi-magenta {
+  color: var(--color-ansi-magenta);
+}
+
+.markdown-body .ansi-cyan {
+  color: var(--color-ansi-cyan);
+}
+
 .katex {
   color: var(--color-text);
   font-size: 1.1em;
