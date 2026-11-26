@@ -103,7 +103,7 @@ $ clang++ -std=c++20 -O2 -fno-unroll-loops -fno-vectorize -mno-sse -mno-avx -c s
 $ llvm-objdump -d --disassemble-symbols=$(nm sum.o | awk '/sum/ {print $3}') --x86-asm-syntax=intel sum.o
 ```
 
-```txt
+```x86asm
 sum.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -150,7 +150,7 @@ $ clang++ -std=c++20 -O2 -fno-unroll-loops -fno-vectorize -mno-sse -mno-avx -c s
 $ llvm-objdump -d --disassemble-symbols=$(nm sum.o | awk '/sum/ {print $3}') --x86-asm-syntax=intel sum.o
 ```
 
-```text
+```x86asm
 sum.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -195,7 +195,7 @@ $ clang++ -std=c++20 -O2 -fno-vectorize -mno-sse -mno-avx -c sum.cpp
 $ llvm-objdump -d --disassemble-symbols=$(nm sum.o | awk '/sum/ {print $3}') --x86-asm-syntax=intel sum.o
 ```
 
-```text
+```x86asm
 sum.o:  file format elf64-x86-64
 
 Disassembly of section .text:
@@ -245,7 +245,7 @@ $ clang++ -std=c++20 -O2 -fno-vectorize -mno-sse -mno-avx -c sum.cpp
 $ radare2 -q -e bin.cache=true -c "aa; pdf" sum.o
 ```
 
-```text
+```radare2
             ;-- section..text:
             ;-- .text:
             ;-- reloc..text:
@@ -295,7 +295,7 @@ $ clang++ -std=c++20 -O2 -fno-vectorize -mno-sse -mno-avx -c sum.cpp
 $ radare2 -q -e bin.cache=true -c "aa; pdf" sum.o
 ```
 
-```text
+```radare2
             ;-- section..text:
             ;-- .text:
             ;-- reloc..text:

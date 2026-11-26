@@ -98,7 +98,7 @@ $ g++ -O2 -S sum1.cpp -o sum1.s
 $ llvm-mca -march=x86-64 -mcpu=x86-64 -timeline sum1.s
 ```
 
-```bash
+```text
 [0] Code Region - MyLoop
 
 Iterations:        100
@@ -173,7 +173,7 @@ $ clang++ -O2 -S sum1.cpp -o sum1.s
 $ llvm-mca -march=x86-64 -mcpu=x86-64 -timeline sum1.s
 ```
 
-```bash
+```text
 [0] Code Region - MyLoop
 
 Iterations:        100
@@ -284,7 +284,7 @@ $ g++ -O2 -S sum2.cpp -o sum2.s
 $ llvm-mca -march=x86-64 -mcpu=x86-64 -timeline sum2.s
 ```
 
-```bash
+```text
 [0] Code Region - MyLoop
 
 Iterations:        100
@@ -364,7 +364,7 @@ $ clang++ -O2 -S sum2.cpp -o sum2.s
 $ llvm-mca -march=x86-64 -mcpu=x86-64 -timeline sum2.s
 ```
 
-```bash
+```text
 sum2.s:67:3: error: found an invalid region end directive
         # LLVM-MCA-END
          ^

@@ -83,7 +83,7 @@ Disassembly of section .text:
 $ size main.o
 ```
 
-```bash
+```text
 text	   data	    bss	    dec	    hex	filename
  103	      0	      0	    103	     67	main.o
 ```
@@ -110,7 +110,7 @@ Disassembly of section .text:
 $ size main.o
 ```
 
-```bash
+```text
 text	   data	    bss	    dec	    hex	filename
   90	      0	      0	     90	     5a	main.o
 ```
@@ -137,7 +137,7 @@ Disassembly of section .text:
 $ size main.o
 ```
 
-```bash
+```text
 text	   data	    bss	    dec	    hex	filename
   87	      0	      0	     87	     57	main.o
 ```
@@ -154,7 +154,7 @@ $ rm -f (path filter *.o); clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax
 ```
 
 ```bash
-rm -f (path filter *.o); clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
+$ rm -f (path filter *.o); clang -O1 -c main.c; llvm-objdump -d --x86-asm-syntax=att main.o
 ```
 
 ```x86asm
@@ -217,7 +217,7 @@ int main() {
 $ rm -f (path filter *.out); clang -g -O2 -o app.out main.c; lldb app.out
 ```
 
-```bash
+```text
 (lldb) target create "app.out"
 Current executable set to '/home/gapry/Workspaces/test/app.out' (x86_64).
 (lldb) breakpoint set -n main
