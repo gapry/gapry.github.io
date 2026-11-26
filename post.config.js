@@ -27,6 +27,8 @@ years.forEach(year => {
             .filter(Boolean); 
         }
 
+        const titleMatch = content.match(/^title:\s*(.*)$/m);
+
         const fileName = file.replace('.md', '');
         const parts    = fileName.split('-');
 
@@ -42,7 +44,7 @@ years.forEach(year => {
           slug,
           tags,
           originalName : fileName,
-          title        : slug.replace(/-/g, ' '),
+          title        : titleMatch ? titleMatch[1].trim() : slug.replace(/-/g, ' '),
           date         : `${y}-${m}-${d}`
         });
       }

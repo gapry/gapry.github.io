@@ -1,43 +1,112 @@
 .post-metadata {
-  margin: 0;
+  --tag-gap: 10px;
   padding: 15px 0;
-  display: flex;
-  align-items: center;
-}
-
-.post-tags-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0;
-  line-height: 1;
 }
 
 .blog-post-tags {
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 0.8rem;
-  background: #252525;
-  color: #c04d4d;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 12.8px;
+  line-height: 1;
+  background: var(--color-surface);
+  color: var(--color-accent);
   padding: 4px 10px;
   border-radius: 4px;
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
 }
 
 .blog-post-tags:hover {
-  background: #121212;
-  color: #ff4d4f;
-  text-decoration: none;
+  background: var(--color-bg-sunken);
+  color: var(--color-accent-strong);
   font-weight: bold;
 }
 
+.markdown-body {
+  font-size: 17.6px;
+  overflow-wrap: break-word;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  color: var(--color-text-strong);
+  margin-top: 16px;
+  margin-bottom: 0.5em;
+}
+
 .markdown-body h2 {
-  margin-top: 0px !important;
+  margin-top: 0;
+}
+
+.markdown-body > :is(h1, h2, h3, p):first-child {
+  margin-top: 8px;
+}
+
+.markdown-body hr {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body table {
+  display: block;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 15.2px;
+  overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--color-border);
+  padding: 12px;
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: var(--color-surface);
+  color: var(--color-text-strong);
+}
+
+.markdown-body tr:nth-child(even) {
+  background-color: var(--color-surface-subtle);
+}
+
+.markdown-body code {
+  font-family: var(--font-code);
+  background-color: var(--color-surface-raised);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 85%;
+  color: var(--color-accent);
+}
+
+.markdown-body pre {
+  overflow-x: auto;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+  padding: 0;
+  color: var(--color-text);
+}
+
+.markdown-body :is(pre, pre div, table) {
+  scrollbar-width: none;
+}
+
+.markdown-body :is(pre, pre div, table)::-webkit-scrollbar {
+  display: none;
 }
 
 .katex {
-  color: #e0e0e0; 
+  color: var(--color-text);
   font-size: 1.1em;
 }
 

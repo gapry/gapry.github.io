@@ -1,132 +1,20 @@
-body {
-  margin: 0;
-  background-color: #1a1a1a;
-  color: #e0e0e0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
 .app-shell {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0px 20px;
-  line-height: 1.7;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  box-sizing: border-box; 
-  overflow-x: hidden;
+  box-sizing: border-box;
+  max-width: 800px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 .main-container {
-  flex: 1; 
-  width: 100%;
-  min-width: 0;
+  flex: 1;
 }
 
-a {
-  color: #1890ff;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-a:hover {
-  text-decoration: underline;
-  color: #40a9ff;
-}
-
-.markdown-body {
-  font-size: 1.1rem;
-  margin-top: 0;
-}
-
-.markdown-body h1, .markdown-body h2, .markdown-body h3 {
-  color: #ffffff;
-  margin-top: 1rem;
-  margin-bottom: 0.5em;
-}
-
-.markdown-body > h1:first-child,
-.markdown-body > h2:first-child,
-.markdown-body > h3:first-child,
-.markdown-body > p:first-child {
-  margin-top: 0.5rem !important;
-}
-
-.markdown-body hr {
-  margin: 0;
-  border: 0;
-  border-top: 1px solid #333;
-}
-
-.markdown-body table {
-  display: block;
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 0.95rem;
-  overflow-x: hidden;
-}
-
-.markdown-body th, .markdown-body td {
-  border: 1px solid #333;
-  padding: 12px;
-  text-align: left;
-}
-
-.markdown-body th {
-  background-color: #252525;
-  color: #ffffff;
-}
-
-.markdown-body tr:nth-child(even) {
-  background-color: #212121;
-}
-
-.markdown-body code {
-  font-family: 'Fira Code', 'Cascadia Code', monospace;
-  background-color: #2d2d2d;
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-size: 85%;
-  color: #ff7875;
-}
-
-.markdown-body pre {
-  background-color: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  max-width: 100%;
-  white-space: pre;
-  overflow-x: auto !important;
-  scrollbar-width: none !important; 
-  -ms-overflow-style: none !important;
-}
-
-.markdown-body pre code {
-  background-color: transparent;
-  padding: 0;
-  color: #e0e0e0;
-}
-
-.markdown-body pre::-webkit-scrollbar,
-.markdown-body div::-webkit-scrollbar,
-.markdown-body code::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  background: transparent !important;
-}
-
-.markdown-body pre,
-.markdown-body div,
-.markdown-body code {
-  scrollbar-width: none !important;
-}
-
-.markdown-body pre,
-.markdown-body div,
-.markdown-body code {
-  -ms-overflow-style: none !important;
+@media (min-width: 801px) {
+  .app-shell {
+    width: fit-content;
+  }
 }

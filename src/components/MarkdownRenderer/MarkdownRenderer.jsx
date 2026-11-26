@@ -81,14 +81,12 @@ export default function MarkdownRenderer({ content }) {
   return (
     <article className="markdown-body">
       {tags.length > 0 && (
-        <div className="post-metadata">
-          <div className="post-tags-row">
-            {tags.map(tag => (
-              <a key={tag} href={`/tag/${tag}`} className="blog-post-tags">
-                #{tag}
-              </a>
-            ))}
-          </div>
+        <div className="tag-list post-metadata">
+          {tags.map(tag => (
+            <a key={tag} href={`/tag/${tag}`} className="blog-post-tags">
+              #{tag}
+            </a>
+          ))}
         </div>
       )}
 

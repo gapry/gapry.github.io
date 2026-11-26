@@ -1,47 +1,39 @@
 .tags-page {
-  width: 100%;
   padding-top: 20px;
-}
-
-.tags-cloud-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: flex-start;
 }
 
 .tag-cloud-item {
   display: flex;
   align-items: center;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   padding: 8px 16px;
-  border-radius: 20px; 
+  border-radius: 20px;
   text-decoration: none;
 }
 
 .tag-cloud-item:hover {
-  border-color: #1890ff;
-  background: #222;
+  border-color: var(--color-link);
+  background: var(--color-surface-subtle);
 }
 
 .tag-hash {
-  color: #1890ff;
+  color: var(--color-link);
   margin-right: 4px;
   font-weight: bold;
 }
 
 .tag-name {
-  color: #eee;
-  font-size: 1rem;
-  font-family: 'SFMono-Regular', Consolas, monospace;
+  color: var(--color-text);
+  font-size: 16px;
+  font-family: var(--font-mono);
 }
 
 .tag-count {
-  color: #666;
-  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-size: 12.8px;
   margin-left: 8px;
-  background: #2a2a2a;
+  background: var(--color-surface-raised);
   padding: 2px 6px;
   border-radius: 10px;
 }

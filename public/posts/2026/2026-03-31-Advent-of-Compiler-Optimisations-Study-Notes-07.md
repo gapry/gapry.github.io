@@ -1,5 +1,6 @@
 ---
 tags: AoCO2025, Compiler, x86
+title: Advent of Compiler Optimisations Study Notes 07
 ---
 
 ## Study Notes: Division by a Constant, Advent of Compiler Optimisations 2025
