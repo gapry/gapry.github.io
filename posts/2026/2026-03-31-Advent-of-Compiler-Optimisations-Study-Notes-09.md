@@ -1,5 +1,6 @@
 ---
 tags: AoCO2025, Compiler, x86
+title: Advent of Compiler Optimisations Study Notes 09
 ---
 
 ## Study Notes: Induction variables and loops, Advent of Compiler Optimisations 2025

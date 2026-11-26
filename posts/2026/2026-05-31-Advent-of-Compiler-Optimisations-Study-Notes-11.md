@@ -1,5 +1,6 @@
 ---
 tags: AoCO2025, Compiler, x86
+title: Advent of Compiler Optimisations Study Notes 11
 ---
 
 ## Study Notes: Counting Bits, Advent of Compiler Optimisations 2025
