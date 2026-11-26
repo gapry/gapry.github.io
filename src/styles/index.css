@@ -19,6 +19,13 @@
   --color-accent: #ff7875;
   --color-accent-strong: #ff4d4f;
 
+  --color-ansi-red: #f14c4c;
+  --color-ansi-green: #23d18b;
+  --color-ansi-yellow: #f5f543;
+  --color-ansi-blue: #3b8eea;
+  --color-ansi-magenta: #d670d6;
+  --color-ansi-cyan: #29b8db;
+
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   --font-code: 'Fira Code', 'Cascadia Code', monospace;

@@ -217,7 +217,7 @@ The compiler defaults to the `mul` instruction because decomposing the constant 
 If the compiler were to adopt a manual shift-and-subtract strategy, 
 the code generator would need to output three instructions:
 ```armasm
-add w8, w0, w0, lsl 1    // w8 = x + 2x = 3x
+add w8, w0, w0, lsl #1   // w8 = x + 2x = 3x
 lsl w8, w8, #2           // w8 = w8 << 2 = 3x << 2 = 3x * 4 = 12x
 sub w0, w8, w0           // w0 = 12x - x = 11x
 ```

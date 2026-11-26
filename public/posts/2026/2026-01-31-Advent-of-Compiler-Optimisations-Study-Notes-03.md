@@ -120,7 +120,7 @@ The instruction `sub sp, sp, #0x20` performs Stack Allocation by decrementing th
 The subsequent `stp` (Store Pair) instruction implements Context Saving, pushing the Frame Pointer (`X29`) and Link Register (`X30`) onto the stack to 
 facilitate the Stack Unwinding process during the Function Epilogue.
 
-```bash
+```text
 | Higher Address |
 |                |
 +----------------+ <--- Previous SP
@@ -229,7 +229,7 @@ In the unoptimized execution, each recursive call of `add(x + 1, y - 1)` trigger
 resulting in the allocation of a new activation record. 
 This manifests as `O(n)` space complexity, as the stack grows linearly with the input value of `y`.
 
-```bash
+```text
 |   Higher Address   |
 +--------------------+
 |  add(1, 10) Frame  | (Initial Call: a = 1, b = 10)
@@ -265,7 +265,7 @@ as no further operations are required after the callee returns.
 This reduces the space complexity from `O(n)` to `O(1)` and eliminates the overhead associated 
 with stack frame allocation and deallocation.
 
-```bash
+```text
 |   Higher Address   |    |   Higher Address  |           |   Higher Address  |
 +--------------------+    +-------------------+           +-------------------+ <-- Previous SP
 |  add(1, 10) Frame  | -> |  add(2, 9) Frame  | -> ... -> |  add(11, 0) Frame |     (Reused for all steps)

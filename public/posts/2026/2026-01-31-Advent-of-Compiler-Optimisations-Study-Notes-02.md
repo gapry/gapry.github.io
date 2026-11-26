@@ -88,7 +88,7 @@ Hence, the compiler needs to use two instructions to execute the addition at the
 
 ## Optimized Analysis
 ```bash
-rm -f (path filter *.o); clang -O2 -c add.c; llvm-objdump -d --x86-asm-syntax=att add.o
+$ rm -f (path filter *.o); clang -O2 -c add.c; llvm-objdump -d --x86-asm-syntax=att add.o
 ```
 
 ```x86asm
