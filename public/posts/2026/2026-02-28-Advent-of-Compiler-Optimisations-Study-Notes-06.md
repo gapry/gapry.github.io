@@ -1,5 +1,6 @@
 ---
 tags: AoCO2025, Compiler, x86, arm
+title: Advent of Compiler Optimisations Study Notes 06
 ---
 
 ## Study Notes: Division, Advent of Compiler Optimisations 2025

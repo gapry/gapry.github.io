@@ -1,5 +1,6 @@
 ---
 tags: AoCO2025, Compiler, arm
+title: Advent of Compiler Optimisations Study Notes 05
 ---
 
 ## Study Notes: ARM's barrel shifter tricks, Advent of Compiler Optimisations 2025

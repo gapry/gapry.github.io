@@ -31,7 +31,7 @@ export default function Analytics() {
     script.async  = true;
 
     document.head.appendChild(script);
-  }, [trackingId, siteConfig.analytics.anonymizeIp]);
+  }, [trackingId]);
 
   return null; 
 }

@@ -13,16 +13,14 @@ export default function Tags({ allPosts }) {
   }, [allPosts]);
 
   return (
-    <div className="tags-page">
-      <div className="tags-cloud-wrapper">
-        {tagStats.map(([tag, count]) => (
-          <a key={tag} href={`/tag/${tag}`} className="tag-cloud-item">
-            <span className="tag-hash">#</span>
-            <span className="tag-name">{tag}</span>
-            <span className="tag-count">{count}</span>
-          </a>
-        ))}
-      </div>
+    <div className="tag-list tags-page">
+      {tagStats.map(([tag, count]) => (
+        <a key={tag} href={`/tag/${tag}`} className="tag-cloud-item">
+          <span className="tag-hash">#</span>
+          <span className="tag-name">{tag}</span>
+          <span className="tag-count">{count}</span>
+        </a>
+      ))}
     </div>
   );
 }

@@ -9,7 +9,7 @@ export default function NotFound() {
         <p className="not-found-text">
           Sorry, the article or page you are looking for seems to have moved or no longer exists.
         </p>
-        <a href="/" className="not-found-link">
+        <a href="/">
           ← Return to homepage
         </a>
       </div>

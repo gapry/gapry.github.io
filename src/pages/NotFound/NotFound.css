@@ -4,28 +4,17 @@
 }
 
 .not-found-code {
-  font-size: 3rem;
-  color: #ff4d4f; 
+  font-size: 48px;
+  color: var(--color-accent-strong);
   margin-bottom: 0.5em;
 }
 
 .not-found-title {
-  color: #ffffff;
+  color: var(--color-text-strong);
   margin-bottom: 1em;
 }
 
 .not-found-text {
-  color: #999;
+  color: var(--color-text-muted);
   margin-bottom: 2em;
-}
-
-.not-found-link {
-  color: #1890ff;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.not-found-link:hover {
-  color: #40a9ff;
-  text-decoration: underline;
 }
